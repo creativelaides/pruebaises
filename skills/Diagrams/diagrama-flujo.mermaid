@@ -1,0 +1,97 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+ subgraph ETL_Process["🔄 Proceso ETL"]
+        ValidateAPI{"✅ API<br>responde OK?"}
+        Extract["1️⃣ EXTRACT<br>🌐 Conectar a GOV.CO API"]
+        ErrorAPI["❌ Error de conexión"]
+        ParseJSON["📋 Parsear JSON response"]
+        Transform["2️⃣ TRANSFORM<br>🔧 Limpiar y mapear datos"]
+        ValidateData{"✅ Datos<br>válidos?"}
+        ErrorData["❌ Error de validación"]
+        MapToEntity["🗺️ Mapear a TarifaElectrica"]
+        Load["3️⃣ LOAD<br>💾 Guardar en PostgreSQL"]
+        BulkInsert["📦 Bulk Insert"]
+        UpdateLog["✍️ Actualizar log<br>Estado: Success"]
+  end
+    Start(["🚀 Inicio del Sistema"]) --> CheckDB{"¿Base de datos<br>tiene datos?"}
+    CheckDB -- No --> AdminAccess["👨‍💼 Admin accede a /admin"]
+    CheckDB -- Sí --> UserFlow["👤 Usuario accede al sistema"]
+    AdminAccess --> ClickETL@{ label: "🖱️ Click en 'Ejecutar ETL'" }
+    ClickETL --> StartETL["📊 ETL Service inicia"]
+    StartETL --> CreateLog["📝 Crear registro de log<br>Estado: Running"]
+    CreateLog --> Extract
+    Extract --> ValidateAPI
+    ValidateAPI -- No --> ErrorAPI
+    ValidateAPI -- Sí --> ParseJSON
+    ParseJSON --> Transform
+    Transform --> ValidateData
+    ValidateData -- No --> ErrorData
+    ValidateData -- Sí --> MapToEntity
+    MapToEntity --> Load
+    Load --> BulkInsert
+    BulkInsert --> UpdateLog
+    ErrorAPI --> LogError1["📝 Guardar log<br>Estado: Failed"]
+    ErrorData --> LogError2["📝 Guardar log<br>Estado: Failed"]
+    UpdateLog --> ShowSuccess@{ label: "✅ Mostrar mensaje:<br>'ETL completado exitosamente'" }
+    LogError1 --> ShowError["❌ Mostrar error en UI"]
+    LogError2 --> ShowError
+    ShowSuccess --> UserFlow
+    ShowError --> AdminRetry{"¿Reintentar?"}
+    AdminRetry -- Sí --> ClickETL
+    AdminRetry -- No --> End1(["❌ Fin - Sin datos"])
+    UserFlow --> ChoosePage{"Usuario elige<br>página"}
+    ChoosePage -- 📄 Factura --> FacturaPage[/"factura"/]
+    FacturaPage --> InputConsumo["⌨️ Usuario ingresa<br>consumo en kWh"]
+    InputConsumo --> ClickCalc@{ label: "🖱️ Click 'Calcular'" }
+    ClickCalc --> CallAPI1["📡 GET /api/tarifas/actual"]
+    CallAPI1 --> GetTarifa["📊 Obtener tarifa actual<br>desde PostgreSQL"]
+    GetTarifa --> Calculate["🧮 Calcular factura:<br>consumo × componentes"]
+    Calculate --> ShowFactura["📋 Mostrar desglose:<br>- Compra energía<br>- Transporte<br>- Distribución<br>- Etc."]
+    ShowFactura --> ShowTooltips["💡 Tooltips educativos<br>disponibles"]
+    ShowTooltips --> UserDecision1{"¿Qué hace<br>el usuario?"}
+    UserDecision1 -- Nueva simulación --> InputConsumo
+    UserDecision1 -- Ir a educación --> EducacionPage(["/educacion/"])
+    UserDecision1 -- Salir --> End2(["✅ Fin"])
+    ChoosePage -- 🎓 Educación --> EducacionPage
+    EducacionPage --> CallAPI2["📡 GET /api/tarifas/componentes"]
+    CallAPI2 --> GetComponentes["📚 Obtener componentes<br>educativos desde DB"]
+    GetComponentes --> RenderCards["🎴 Renderizar cards:<br>- Icono<br>- Nombre<br>- Descripción simple<br>- Analogía"]
+    RenderCards --> ShowAnalogy@{ label: "🚚 Mostrar sección<br>'Analogía del Delivery'" }
+    ShowAnalogy --> UserDecision2{"¿Qué hace<br>el usuario?"}
+    UserDecision2 -- Ir a factura --> FacturaPage
+    UserDecision2 -- Salir --> End2
+    ChoosePage -- ⚙️ Admin --> AdminPage(["/admin/"])
+    AdminPage --> ShowAdminPanel["🎛️ Mostrar panel:<br>- Botón ETL<br>- Tabla de logs"]
+    ShowAdminPanel --> CallAPI3["📡 GET /api/etl/logs"]
+    CallAPI3 --> GetLogs["📜 Obtener histórico<br>de ejecuciones"]
+    GetLogs --> ShowLogs["📊 Tabla de logs:<br>- Fecha<br>- Estado<br>- Registros<br>- Duración"]
+    ShowLogs --> AdminDecision{"¿Qué hace<br>el admin?"}
+    AdminDecision -- Ejecutar ETL --> ClickETL
+    AdminDecision -- Ver detalles --> ShowDetails["🔍 Ver detalle de log"]
+    AdminDecision -- Salir --> End2
+    ShowDetails --> ShowLogs
+    MonthlyUpdate(["📅 Nuevo mes"]) --> AdminNotified["📧 Admin recibe<br>recordatorio mensual"]
+    AdminNotified --> AdminAccess
+
+    ClickETL@{ shape: rect}
+    ShowSuccess@{ shape: rect}
+    ClickCalc@{ shape: rect}
+    ShowAnalogy@{ shape: rect}
+    style Extract fill:#2196F3,stroke:#1976D2,stroke-width:2px,color:#fff
+    style ErrorAPI fill:#f44336,stroke:#c62828,stroke-width:2px,color:#fff
+    style Transform fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#fff
+    style ErrorData fill:#f44336,stroke:#c62828,stroke-width:2px,color:#fff
+    style Load fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:#fff
+    style Start fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#fff
+    style ShowSuccess fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+    style ShowError fill:#f44336,stroke:#c62828,stroke-width:2px,color:#fff
+    style End1 fill:#f44336,stroke:#c62828,stroke-width:2px,color:#fff
+    style FacturaPage fill:#E3F2FD,stroke:#1976D2,stroke-width:2px
+    style EducacionPage fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px
+    style End2 fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+    style AdminPage fill:#FFF3E0,stroke:#F57C00,stroke-width:2px
+    style MonthlyUpdate fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#fff
+    style ETL_Process fill:#E8F5E9,stroke:#388E3C,stroke-width:3px

@@ -1,0 +1,88 @@
+---
+config:
+  layout: elk
+---
+flowchart RL
+ subgraph Features["📦 Features (Modular)"]
+        FacturaFeature["📄 Factura Feature<br>- factura-page<br>- consumo-input<br>- factura.routes"]
+        EducacionFeature["🎓 Educación Feature<br>- educacion-page<br>- componente-card<br>- educacion.routes"]
+        AdminFeature["⚙️ Admin Feature<br>- admin-page<br>- etl-trigger<br>- admin.routes"]
+  end
+ subgraph Core["🔧 Core (Transversal)"]
+        Services["Services<br>- tarifa.service.ts<br>- etl.service.ts"]
+        Models["Models<br>- tarifa.model.ts<br>- factura.model.ts"]
+  end
+ subgraph Shared["🤝 Shared (Transversal)"]
+        Components["Components<br>- navbar<br>- footer<br>- loading-spinner"]
+  end
+ subgraph Frontend["🎨 FRONTEND - Angular 19"]
+    direction TB
+        Features
+        Core
+        Shared
+  end
+ subgraph subGraph4[" "]
+        Frontend
+  end
+ subgraph WebApi["🌐 WebApi Layer (Presentation)"]
+        Controllers["Controllers<br>- TarifasController<br>- FacturaController<br>- EtlController"]
+        Middleware["Middleware<br>- ErrorHandling<br>- Logging"]
+  end
+ subgraph Application["💼 Application Layer (Use Cases)"]
+        AppServices["Services<br>- TarifaService<br>- EtlService"]
+        DTOs["DTOs<br>- TarifaDTO<br>- FacturaSimuladaDTO<br>- GovCoResponseDTO"]
+        Interfaces1["Interfaces<br>- ITarifaService<br>- IEtlService"]
+  end
+ subgraph Domain["🏛️ Domain Layer (Business Logic)"]
+        Entities["Entities<br>- TarifaElectrica<br>- ComponenteEducacion<br>- EtlLog"]
+        Interfaces2["Interfaces<br>- ITarifaRepository"]
+  end
+ subgraph Infrastructure["🔩 Infrastructure Layer (Data & External)"]
+        DbContext["Data<br>- TarifasDbContext<br>- Configurations"]
+        Repositories["Repositories<br>- TarifaRepository"]
+        ExternalServices["External Services<br>- GovCoApiClient"]
+  end
+ subgraph Backend["🔧 BACKEND - .NET 10 Clean Architecture"]
+    direction TB
+        WebApi
+        Application
+        Domain
+        Infrastructure
+  end
+ subgraph subGraph10[" "]
+        Backend
+  end
+ subgraph External["🌍 EXTERNOS"]
+    direction LR
+        GovCO["🏛️ GOV.CO API<br>datos.gov.co/resource/"]
+        PostgreSQL["🐘 PostgreSQL<br>Data Warehouse"]
+  end
+    FacturaFeature --> Services & Components
+    EducacionFeature --> Services & Components
+    AdminFeature --> Services & Components
+    Services --> Models
+    Services -- HTTP REST --> Controllers
+    Controllers --> Interfaces1
+    Interfaces1 -. implements .-> AppServices
+    AppServices --> DTOs & Interfaces2 & ExternalServices
+    Interfaces2 -. implements .-> Repositories
+    Repositories --> DbContext & Entities
+    DbContext --> Entities
+    ExternalServices -- HTTP GET --> GovCO
+    DbContext -- EF Core --> PostgreSQL
+
+    style FacturaFeature fill:#81C784,stroke:#388E3C,stroke-width:2px
+    style EducacionFeature fill:#FFB74D,stroke:#F57C00,stroke-width:2px
+    style AdminFeature fill:#E57373,stroke:#C62828,stroke-width:2px
+    style Features fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
+    style Core fill:#90CAF9,stroke:#1976D2,stroke-width:2px
+    style Shared fill:#64B5F6,stroke:#1976D2,stroke-width:2px
+    style Frontend fill:#E3F2FD,stroke:#1976D2,stroke-width:3px
+    style WebApi fill:#E1BEE7,stroke:#7B1FA2,stroke-width:2px
+    style Application fill:#CE93D8,stroke:#7B1FA2,stroke-width:2px
+    style Domain fill:#BA68C8,stroke:#7B1FA2,stroke-width:2px
+    style Infrastructure fill:#AB47BC,stroke:#7B1FA2,stroke-width:2px
+    style Backend fill:#F3E5F5,stroke:#7B1FA2,stroke-width:3px
+    style GovCO fill:#FFCC80,stroke:#F57C00,stroke-width:2px
+    style PostgreSQL fill:#FFE0B2,stroke:#F57C00,stroke-width:2px
+    style External fill:#FFF3E0,stroke:#F57C00,stroke-width:3px

@@ -1,0 +1,130 @@
+sequenceDiagram
+    actor Admin as 👨‍💼 Admin
+    participant UI as 🖥️ Angular<br/>Admin Page
+    participant API as 🌐 EtlController
+    participant Service as 💼 EtlService
+    participant ApiClient as 🔌 GovCoApiClient
+    participant GovCO as 🏛️ GOV.CO API
+    participant Repo as 🗄️ TarifaRepository
+    participant DB as 🐘 PostgreSQL
+    
+    %% ========================================
+    %% FASE 1: INICIO
+    %% ========================================
+    
+    Admin->>+UI: Navega a /admin
+    UI->>+API: GET /api/etl/logs
+    API->>+Repo: GetLogsAsync()
+    Repo->>+DB: SELECT * FROM etl_logs
+    DB-->>-Repo: Registros de logs
+    Repo-->>-API: List<EtlLog>
+    API-->>-UI: HTTP 200 + logs
+    UI-->>Admin: Muestra tabla de logs
+    
+    Note over Admin,UI: Admin ve histórico de<br/>ejecuciones anteriores
+    
+    Admin->>+UI: Click "Ejecutar ETL"
+    UI->>UI: Mostrar spinner
+    UI->>+API: POST /api/etl/ejecutar
+    
+    %% ========================================
+    %% FASE 2: EXTRACT
+    %% ========================================
+    
+    API->>+Service: EjecutarEtlAsync()
+    Service->>Service: Iniciar cronómetro
+    Service->>+DB: INSERT INTO etl_logs<br/>(estado='Running')
+    DB-->>-Service: Log creado
+    
+    Note over Service: 📊 EXTRACT - Obtener datos
+    
+    Service->>+ApiClient: ObtenerTarifasAsync()
+    ApiClient->>ApiClient: BuildUrl()
+    ApiClient->>+GovCO: GET /resource/{dataset-id}.json
+    
+    alt ✅ Respuesta exitosa
+        GovCO-->>-ApiClient: HTTP 200 + JSON data
+        ApiClient->>ApiClient: Deserialize JSON
+        ApiClient-->>-Service: List<GovCoResponseDTO>
+    else ❌ Error de conexión
+        GovCO-->>ApiClient: HTTP 500 / Timeout
+        ApiClient-->>Service: Exception
+        Service->>+DB: UPDATE etl_logs<br/>SET estado='Failed'
+        DB-->>-Service: Log actualizado
+        Service-->>API: EtlResult(Success=false)
+        API-->>UI: HTTP 500 + error
+        UI-->>Admin: ❌ Mostrar error
+    end
+    
+    %% ========================================
+    %% FASE 3: TRANSFORM
+    %% ========================================
+    
+    Note over Service: 🔧 TRANSFORM - Limpiar datos
+    
+    Service->>Service: TransformarDatos()
+    
+    loop Para cada registro
+        Service->>Service: Limpiar nulls
+        Service->>Service: Parsear fechas
+        Service->>Service: Convertir strings a decimales
+        Service->>Service: Validar rangos
+        Service->>Service: Mapear a TarifaElectrica
+    end
+    
+    Service->>Service: List<TarifaElectrica> transformadas
+    
+    alt ❌ Error de validación
+        Service->>+DB: UPDATE etl_logs<br/>SET estado='Failed'
+        DB-->>-Service: Log actualizado
+        Service-->>API: EtlResult(Success=false)
+        API-->>UI: HTTP 400 + error
+        UI-->>Admin: ❌ Datos inválidos
+    end
+    
+    %% ========================================
+    %% FASE 4: LOAD
+    %% ========================================
+    
+    Note over Service,DB: 💾 LOAD - Guardar en DB
+    
+    Service->>+Repo: BulkInsertAsync(tarifas)
+    
+    Repo->>+DB: BEGIN TRANSACTION
+    DB-->>-Repo: Transaction iniciada
+    
+    Repo->>+DB: DELETE FROM tarifas_electricas<br/>WHERE periodo = @periodo
+    DB-->>-Repo: Registros antiguos eliminados
+    
+    Repo->>+DB: BULK INSERT INTO tarifas_electricas
+    DB-->>-Repo: Registros insertados
+    
+    Repo->>+DB: COMMIT TRANSACTION
+    DB-->>-Repo: Transaction completada
+    
+    Repo-->>-Service: true (éxito)
+    
+    %% ========================================
+    %% FASE 5: FINALIZACIÓN
+    %% ========================================
+    
+    Service->>Service: Detener cronómetro
+    Service->>+DB: UPDATE etl_logs SET<br/>estado='Success',<br/>registros_procesados=X,<br/>duracion_segundos=Y
+    DB-->>-Service: Log actualizado
+    
+    Service-->>-API: EtlResult {<br/>  Success=true,<br/>  RegistrosProcesados=X<br/>}
+    
+    API-->>-UI: HTTP 200 + resultado
+    UI->>UI: Ocultar spinner
+    UI-->>-Admin: ✅ ETL completado<br/>X registros procesados
+    
+    Admin->>+UI: Ver logs actualizados
+    UI->>+API: GET /api/etl/logs
+    API->>+Repo: GetLogsAsync()
+    Repo->>+DB: SELECT * FROM etl_logs<br/>ORDER BY fecha DESC
+    DB-->>-Repo: Logs actualizados
+    Repo-->>-API: List<EtlLog>
+    API-->>-UI: HTTP 200 + logs
+    UI-->>-Admin: Tabla con nuevo log Success
+    
+    Note over Admin,DB: Datos listos para<br/>usuarios finales 🎉

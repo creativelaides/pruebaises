@@ -1,0 +1,203 @@
+---
+config:
+  layout: elk
+---
+classDiagram
+direction RL
+    class TarifaElectrica {
+	    +int Id
+	    +int Año
+	    +int Mes
+	    +string Periodo
+	    +string Operador
+	    +string Nivel
+	    +decimal CuTotal
+	    +decimal CostoCompraG
+	    +decimal CargoTransporteStntm
+	    +decimal CargoTransporteSdldm
+	    +decimal MargenComercializacion
+	    +decimal CostoPerdidaPr
+	    +decimal RestriccionesRm
+	    +decimal Cot
+	    +decimal CfmjGfact
+	    +DateTime FechaActualizacion
+	    +DateTime CreatedAt
+    }
+
+    class ComponenteEducacion {
+	    +int Id
+	    +string Codigo
+	    +string Nombre
+	    +string DescripcionSimple
+	    +string Analogia
+	    +string Icono
+	    +string Color
+	    +int Orden
+    }
+
+    class EtlLog {
+	    +int Id
+	    +DateTime FechaEjecucion
+	    +string Estado
+	    +int RegistrosProcesados
+	    +string Mensaje
+	    +decimal DuracionSegundos
+    }
+
+    class ITarifaRepository {
+	    +Task~TarifaElectrica~ GetTarifaActualAsync()
+	    +Task~List~TarifaElectrica~~ GetAllAsync()
+	    +Task~bool~ BulkInsertAsync(tarifas)
+	    +Task~List~ComponenteEducacion~~ GetComponentesAsync()
+	    +Task GuardarLogAsync(log)
+    }
+
+    class TarifaDTO {
+	    +int Id
+	    +string Periodo
+	    +string Nivel
+	    +decimal CuTotal
+	    +Dictionary~string, decimal~ Componentes
+    }
+
+    class FacturaSimuladaDTO {
+	    +int ConsumoKwh
+	    +decimal CostoPorKwh
+	    +decimal Total
+	    +List~ComponenteDetalleDTO~ Desglose
+    }
+
+    class ComponenteDetalleDTO {
+	    +string Nombre
+	    +decimal Valor
+	    +string Color
+	    +string Analogia
+    }
+
+    class GovCoResponseDTO {
+	    +string Año
+	    +string Periodo
+	    +string OperadorDeRed
+	    +string Nivel
+	    +string CuTotal
+	    +string CostoCompraGm
+	    +string CargoTransporteStntm
+    }
+
+    class ITarifaService {
+	    +Task~TarifaDTO~ GetTarifaActualAsync()
+	    +Task~List~ComponenteEducacion~~ GetComponentesEducativosAsync()
+    }
+
+    class IEtlService {
+	    +Task~EtlResult~ EjecutarEtlAsync()
+	    +Task~List~EtlLog~~ GetLogsAsync()
+	    +Task~EtlLog~ GetUltimoStatusAsync()
+    }
+
+    class TarifaService {
+	    -ITarifaRepository _repository
+	    +Task~TarifaDTO~ GetTarifaActualAsync()
+	    +Task~List~ComponenteEducacion~~ GetComponentesEducativosAsync()
+	    +Task~FacturaSimuladaDTO~ SimularFacturaAsync(consumo)
+    }
+
+    class EtlService {
+	    -GovCoApiClient _apiClient
+	    -ITarifaRepository _repository
+	    +Task~EtlResult~ EjecutarEtlAsync()
+	    +Task~List~EtlLog~~ GetLogsAsync()
+	    -List~TarifaElectrica~ TransformarDatos(datos)
+    }
+
+    class EtlResult {
+	    +bool Success
+	    +string Mensaje
+	    +int RegistrosProcesados
+    }
+
+    class TarifasDbContext {
+	    +DbSet~TarifaElectrica~ TarifasElectricas
+	    +DbSet~ComponenteEducacion~ ComponentesEducacion
+	    +DbSet~EtlLog~ EtlLogs
+	    #OnModelCreating(modelBuilder)
+    }
+
+    class TarifaRepository {
+	    -TarifasDbContext _context
+	    +Task~TarifaElectrica~ GetTarifaActualAsync()
+	    +Task~List~TarifaElectrica~~ GetAllAsync()
+	    +Task~bool~ BulkInsertAsync(tarifas)
+	    +Task~List~ComponenteEducacion~~ GetComponentesAsync()
+	    +Task GuardarLogAsync(log)
+    }
+
+    class GovCoApiClient {
+	    -HttpClient _httpClient
+	    -string BASE_URL
+	    -string DATASET_ID
+	    +Task~List~GovCoResponseDTO~~ ObtenerTarifasAsync()
+	    -string BuildUrl()
+    }
+
+    class TarifasController {
+	    -ITarifaService _tarifaService
+	    +Task~IActionResult~ GetTarifaActual()
+	    +Task~IActionResult~ GetComponentesEducativos()
+    }
+
+    class FacturaController {
+	    -ITarifaService _tarifaService
+	    +Task~IActionResult~ SimularFactura(request)
+    }
+
+    class EtlController {
+	    -IEtlService _etlService
+	    +Task~IActionResult~ EjecutarEtl()
+	    +Task~IActionResult~ GetLogs()
+	    +Task~IActionResult~ GetStatus()
+    }
+
+	<<interface>> ITarifaRepository
+	<<interface>> ITarifaService
+	<<interface>> IEtlService
+
+    TarifaRepository ..|> ITarifaRepository
+    TarifaRepository --> TarifasDbContext
+    TarifasDbContext --> TarifaElectrica
+    TarifasDbContext --> ComponenteEducacion
+    TarifasDbContext --> EtlLog
+    TarifaService ..|> ITarifaService
+    EtlService ..|> IEtlService
+    TarifaService --> ITarifaRepository
+    EtlService --> ITarifaRepository
+    EtlService --> GovCoApiClient
+    TarifaService --> TarifaDTO
+    TarifaService --> FacturaSimuladaDTO
+    FacturaSimuladaDTO --> ComponenteDetalleDTO
+    EtlService --> GovCoResponseDTO
+    EtlService --> EtlResult
+    TarifasController --> ITarifaService
+    FacturaController --> ITarifaService
+    EtlController --> IEtlService
+    GovCoApiClient --> GovCoResponseDTO
+
+	style TarifaElectrica fill:#e3f2fd
+	style ComponenteEducacion fill:#e3f2fd
+	style EtlLog fill:#e3f2fd
+	style ITarifaRepository fill:#fff3e0
+	style TarifaDTO fill:#f3e5f5
+	style FacturaSimuladaDTO fill:#f3e5f5
+
+	style GovCoResponseDTO fill:#f3e5f5
+	style ITarifaService fill:#fff3e0
+	style IEtlService fill:#fff3e0
+	style TarifaService fill:#f3e5f5
+	style EtlService fill:#f3e5f5
+
+	style TarifasDbContext fill:#e8f5e9
+	style TarifaRepository fill:#e8f5e9
+	style GovCoApiClient fill:#e8f5e9
+	style TarifasController fill:#fce4ec
+	style FacturaController fill:#fce4ec
+	style EtlController fill:#fce4ec

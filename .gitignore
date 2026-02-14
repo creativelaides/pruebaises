@@ -1,0 +1,53 @@
+# Visual Studio 
+.vs/
+*.user
+*.suo
+*.sln.docstates
+*.userosscache
+*.VC.db
+*.sdf
+*.opensdf
+*.docstates
+
+# Build artifacts
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Bb]uild/
+[Oo]ut/
+artifacts/
+publish/
+
+# NuGet
+*.nupkg
+*.snupkg
+*.lock.json
+
+# Resharper
+*.resharper
+*.dotSettings
+
+# Rider
+.idea/
+
+# Node.js and Angular
+node_modules/
+dist/
+tmp/
+.angular/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.DS_Store
+
+# Misc
+*.log
+*.bak
+**/*.orig
+*.pid
+*.seed
+*.netrc
+*.vscode/
+.history/
