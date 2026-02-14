@@ -30,7 +30,7 @@ The proposed technology stack is:
     *   `diagrama-flujo.mermaid`: A flowchart illustrating user interaction and the ETL process flow.
     *   `diagrama-secuencia-etl.mermaid`: A sequence diagram detailing the step-by-step ETL process from the admin's action to data being stored in the database.
 
-*   `Pictures/`: Contains images related to the project, such as a visual representation of the ETL process and screenshots of the data source website.
+*   `Visuals/`: Contains images related to the project, such as a visual representation of the ETL process and screenshots of the data source website.
 
 ## Usage
 

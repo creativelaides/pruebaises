@@ -1,10 +1,11 @@
 <div align="center">
-  <img src="skills/Visuals/project-top-image.svg" alt="Project Top Image">
+<h1>Prueba ISES - Tarifas Electricas 2026</h1>
+<img margin=20px src ="skills/Visuals/project-top-image.svg" alt="ContainerApiDotnetAngularProject" align="center" height="150px">
+<br>
+<br>
 </div>
 
-# Prueba ISES - Tarifas Electricas 2026
-
-A short description of the project.
+This project is a full-stack web application designed to monitor and visualize electricity tariffs in Colombia, utilizing public data from `datos.gov.co`. Built as a technical test submission, it features a .NET backend with Clean Architecture, an Angular frontend, and a PostgreSQL database.
 
 For more details about the project, please refer to the [GEMINI.md](GEMINI.md) file.
 

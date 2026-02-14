@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/API/">
+    <Project Path="src/API/TarifasElectricas.Api/TarifasElectricas.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Core/">
+    <Project Path="src/Core/TarifasElectricas.Application/TarifasElectricas.Application.csproj" />
+    <Project Path="src/Core/TarifasElectricas.Domain/TarifasElectricas.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="src/Infrastructure/TarifasElectricas.Persitence/TarifasElectricas.Persitence.csproj" />
+  </Folder>
+</Solution>
