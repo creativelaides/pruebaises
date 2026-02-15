@@ -1,37 +1,19 @@
 using System;
 using FluentValidation;
 
-namespace TarifasElectricas.Application.UseCases.Commands.CreateTariff;
+namespace TarifasElectricas.Application.UseCases.Commands.UpdateTariff;
 
 /// <summary>
-/// Validador para CreateTariffCommand usando FluentValidation.
+/// Validador para UpdateTariffCommand.
 /// WolverineFx lo invoca automáticamente.
 /// </summary>
-public class CreateTariffCommandValidator : AbstractValidator<CreateTariffCommand>
+public class UpdateTariffCommandValidator : AbstractValidator<UpdateTariffCommand>
 {
-    public CreateTariffCommandValidator()
+    public UpdateTariffCommandValidator()
     {
-        RuleFor(x => x.Year)
-            .GreaterThanOrEqualTo(1900)
-            .LessThanOrEqualTo(DateTime.UtcNow.Year + 1)
-            .WithMessage("El año debe estar entre 1900 y el año actual + 1");
-
-        RuleFor(x => x.Month)
-            .GreaterThanOrEqualTo(1)
-            .LessThanOrEqualTo(12)
-            .WithMessage("El mes debe estar entre 1 y 12");
-
-        RuleFor(x => x.Period)
+        RuleFor(x => x.Id)
             .NotEmpty()
-            .WithMessage("El período de tarifa es requerido");
-
-        RuleFor(x => x.Level)
-            .NotEmpty()
-            .WithMessage("El nivel de tensión es requerido");
-
-        RuleFor(x => x.Operator)
-            .NotEmpty()
-            .WithMessage("El operador distribuidora es requerido");
+            .WithMessage("El ID de la tarifa es requerido");
 
         RuleFor(x => x.TotalCu)
             .GreaterThanOrEqualTo(0)

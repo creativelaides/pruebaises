@@ -8,8 +8,8 @@ using TarifasElectricas.Domain.ValueObjects;
 namespace TarifasElectricas.Application.UseCases.Commands.CreateTariff;
 
 /// <summary>
-/// Handler para CreateTariffCommand
-/// WolverineFx lo descubre automáticamente por el método Handle/HandleAsync
+/// Handler para CreateTariffCommand.
+/// WolverineFx lo descubre automáticamente por el método Handle/HandleAsync.
 /// </summary>
 public class CreateTariffCommandHandler
 {
@@ -21,7 +21,7 @@ public class CreateTariffCommandHandler
     }
 
     /// <summary>
-    /// WolverineFx invoca este método automáticamente
+    /// WolverineFx invoca este método automáticamente.
     /// </summary>
     public async Task<CreateTariffResponse> Handle(CreateTariffCommand command)
     {

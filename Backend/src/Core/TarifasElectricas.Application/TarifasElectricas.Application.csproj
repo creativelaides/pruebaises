@@ -15,10 +15,13 @@
     <Folder Include="Contracts\Persistence\" />
     <Folder Include="Contracts\Repositories\Generic\" />
     <Folder Include="Exceptions\" />
-    <Folder Include="UseCases\" />
-    <Folder Include="UseCases\Commands\" />
     <Folder Include="UseCases\Commands\CreateTariff\" />
+    <Folder Include="UseCases\Commands\UpdateTariff\" />
     <Folder Include="UseCases\Queries\" />
+    <Folder Include="UseCases\Queries\GetAllTariffs\" />
+    <Folder Include="UseCases\Queries\GetLatestTariff\" />
+    <Folder Include="UseCases\Queries\GetTariffById\" />
+    <Folder Include="UseCases\Queries\GetTariffByPeriod\" />
   </ItemGroup>
 
   <PropertyGroup>

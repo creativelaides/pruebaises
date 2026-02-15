@@ -3,8 +3,8 @@ using System;
 namespace TarifasElectricas.Application.UseCases.Commands.CreateTariff;
 
 /// <summary>
-/// Respuesta del comando CreateTariffCommand
-/// Record - Inmutable, salida estructurada
+/// Respuesta del comando CreateTariffCommand.
+/// Record - Inmutable, salida estructurada.
 /// </summary>
 public record CreateTariffResponse
 (

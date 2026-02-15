@@ -3,8 +3,8 @@ using System;
 namespace TarifasElectricas.Application.UseCases.Commands.CreateTariff;
 
 /// <summary>
-/// Comando para crear una nueva tarifa eléctrica
-/// Record - Inmutable, contiene los datos de entrada
+/// Comando para crear una nueva tarifa eléctrica.
+/// Record - Inmutable, contiene los datos de entrada.
 /// </summary>
 public record CreateTariffCommand
 (
