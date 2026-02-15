@@ -12,11 +12,23 @@ public class EtlLog : Root
     public string? Message { get; set; }
     public decimal? DurationSeconds { get; set; }
 
-    public EtlLog() { }
+    /// <summary>
+    /// Constructor privado para EF Core
+    /// </summary>
+    private EtlLog() { }
 
-    public EtlLog(DateTime executionDate, EtlState state, int? processedRecords = null,
-                  string? message = null, decimal? durationSeconds = null)
+    /// <summary>
+    /// Constructor público para crear un nuevo log de ETL
+    /// </summary>
+    public EtlLog(
+    DateTime executionDate,
+    EtlState state,
+    int? processedRecords = null,
+    string? message = null,
+    decimal? durationSeconds = null
+    )
     {
+        Id = Guid.CreateVersion7();
         ExecutionDate = executionDate;
         State = state;
         ProcessedRecords = processedRecords;
