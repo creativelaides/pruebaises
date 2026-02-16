@@ -1,8 +1,0 @@
-Ayúdame ahora con los archivos:
-
-PersistenceDependencyInjection.cs >>> raíz del proyecto
-ElectricityTariffDBbContext.cs >>> raíz del proyecto
-IEntityTypeConfiguration de cada Entidad en >>> en el folder Configurations
-Repositorio (el base) >>> en el folder Repositories/Generic ejem: Repository<T>:IRepository<T> where T : Root (ojo los métodos solo harán la operación pero no persistirán los cambios por que eso lo hace la unidad de trabajo)
-La implementation del Repository<ElectricityTariff> en el folder Repositories
-La im

@@ -2,33 +2,44 @@
 
 ## Directory Overview
 
-This directory contains the complete planning and documentation for a technical test submission. The project is a full-stack web application designed to monitor and visualize electricity tariffs in Colombia, using public data from `datos.gov.co`.
+Repositorio de una prueba tecnica para monitorear y visualizar tarifas de energia electrica en Colombia usando datos de `datos.gov.co`.
 
-The documentation outlines two versions of the project:
-1.  **Minimal Version**: A core, functional application achievable in 2-3 days.
-2.  **Full Version**: A complete, feature-rich system with a more complex architecture.
+Estado actual:
+- Backend en .NET 10 con Clean Architecture, CQRS y validaciones.
+- Frontend aun no implementado (solo carpeta base).
+- Persistencia planificada en PostgreSQL.
 
-The proposed technology stack is:
-*   **Backend**: .NET with Clean Architecture
-*   **Frontend**: Angular (Modular Architecture)
-*   **Database**: PostgreSQL
+## Arquitectura y Modulos
 
-## Key Files
+- **Domain**: entidades, value objects y reglas de negocio.
+- **Application**: casos de uso (commands/queries), validaciones, mapeos y contratos.
+- **Infrastructure**: persistencia (proyecto `TarifasElectricas.Persitence`).
+- **Tests**: xUnit + NSubstitute para Domain y Application.
 
-*   `PRUEBA_TECNICA_FULLSTACK.md`: The original problem statement for the technical test. It describes the requirements for the ETL process, a REST API, and a frontend interface.
+## Key Files and Folders
 
-*   `Diagrams/`: This folder contains Mermaid diagrams that visually represent the system.
-    *   `diagrama-arquitectura.mermaid`: High-level architecture of the Frontend, Backend, and external services.
-    *   `diagrama-clases.mermaid`: Detailed class diagram for the .NET backend.
-    *   `diagrama-flujo.mermaid`: A flowchart illustrating user interaction and the ETL process flow.
-    *   `diagrama-secuencia-etl.mermaid`: A sequence diagram detailing the step-by-step ETL process from the admin's action to data being stored in the database.
+- `Backend/TarifasElectricas.slnx`: solucion principal .NET.
+- `Backend/src/Core/TarifasElectricas.Domain/`: capa de dominio.
+- `Backend/src/Core/TarifasElectricas.Application/`: casos de uso y contratos.
+- `Backend/src/Infrastructure/TarifasElectricas.Persitence/`: infraestructura de persistencia.
+- `Backend/src/Test/TarifasElectricas.Test/`: pruebas unitarias.
+- `Summaries/APPLICATION_STRUCTURE_SUMMARY.md`: resumen actualizado de Application.
+- `Summaries/DOMAIN_STRUCTURE_SUMMARY.md`: resumen actualizado de Domain.
+- `Skills/Diagrams/`: diagramas Mermaid.
+- `Skills/Visuals/`: recursos visuales.
+- `PRUEBA_TECNICA_FULLSTACK.md`: enunciado original de la prueba.
 
-*   `Visuals/`: Contains images related to the project, such as a visual representation of the ETL process and screenshots of the data source website.
+## Comandos utiles (Backend)
 
-## Usage
+```bash
+cd Backend
+dotnet restore
+dotnet build
+dotnet test
+```
 
-This directory serves as the blueprint for the software development project. The contained documents should be used to understand:
-*   The project's goals and requirements.
-*   The planned technical implementation.
-*   The system's architecture and data flow.
+## Notas
+
+- `Backend/src/API` existe pero no contiene proyecto aun.
+- El frontend y la base de datos estan planificados, no implementados en este repo.
 

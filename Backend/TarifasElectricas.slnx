@@ -5,7 +5,8 @@
     <Project Path="src/Core/TarifasElectricas.Domain/TarifasElectricas.Domain.csproj" />
   </Folder>
   <Folder Name="/src/Infrastructure/">
-    <Project Path="src/Infrastructure/TarifasElectricas.Persitence/TarifasElectricas.Persitence.csproj" />
+    <Project Path="src/Infrastructure/TarifasElectricas.Infrastructure/TarifasElectricas.Infrastructure.csproj" />
+    <Project Path="src/Infrastructure/TarifasElectricas.Persistence/TarifasElectricas.Persistence.csproj" />
   </Folder>
   <Folder Name="/src/Test/">
     <Project Path="src/Test/TarifasElectricas.Test/TarifasElectricas.Test.csproj" />

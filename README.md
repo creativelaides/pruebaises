@@ -1,16 +1,36 @@
 <div align="center">
 <h1>Prueba ISES - Tarifas Electricas 2026</h1>
-<img margin=20px src ="./skills/Visuals/project-top-image.svg" alt="ISESTopImageDotnetAngularPostgresProject" align="center" height="150px" >
+<img margin=20px src ="./Skills/Visuals/project-top-image.svg" alt="ISESTopImageDotnetAngularPostgresProject" align="center" height="150px" >
 <br>
 </div>
 
-This project is a full-stack web application designed to monitor and visualize electricity tariffs in Colombia, utilizing public data from `datos.gov.co`. Built as a technical test submission, it features a .NET backend with Clean Architecture, an Angular frontend, and a PostgreSQL database.
+Proyecto full-stack para monitorear y visualizar tarifas de energia electrica en Colombia usando datos publicos de `datos.gov.co`. El backend esta implementado en .NET con Clean Architecture y CQRS. El frontend aun no esta implementado en este repositorio (solo existe la carpeta base).
 
-For more details about the project, please refer to the [AGENT.md](AGENT.md) file.
+Para mas detalle tecnico y referencias de arquitectura, ver `AGENT.md` y los summaries en `Summaries/`.
 
-## Technologies
+**Estructura**
+- `Backend/`: solucion .NET 10 (Domain, Application, Persistence, Tests)
+- `Summaries/`: documentacion actualizada de capas Domain y Application
+- `Frontend/`: placeholder (sin codigo aun)
+- `Skills/`: diagramas y recursos visuales
 
-![.NET](https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=dotnet&logoColor=white)
-![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen?style=for-the-badge)](https://opensource.org/licenses/MPL-2.0)
+**Tecnologias**
+- .NET 10 (SDK 10.0.103)
+- xUnit + NSubstitute
+- FluentValidation
+- Mapster
+- WolverineFx
+- PostgreSQL (planificado)
+- Angular (planificado)
+
+**Quick Start (Backend)**
+```bash
+cd Backend
+dotnet restore
+dotnet build
+dotnet test
+```
+
+**Docs clave**
+- `Summaries/APPLICATION_STRUCTURE_SUMMARY.md`
+- `Summaries/DOMAIN_STRUCTURE_SUMMARY.md`
