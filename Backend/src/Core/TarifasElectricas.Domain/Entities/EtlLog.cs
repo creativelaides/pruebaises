@@ -17,11 +17,11 @@ namespace TarifasElectricas.Domain.Entities;
 /// </summary>
 public class EtlLog : Root
 {
-    public DateTime ExecutionDate { get; set; }
-    public EtlState State { get; set; }
-    public int? ProcessedRecords { get; set; }
-    public string? Message { get; set; }
-    public decimal? DurationSeconds { get; set; }
+    public DateTime ExecutionDate { get; private set; }
+    public EtlState State { get; private set; }
+    public int? ProcessedRecords { get; private set; }
+    public string? Message { get; private set; }
+    public decimal? DurationSeconds { get; private set; }
 
     /// <summary>
     /// Constructor privado para EF Core.
@@ -63,5 +63,6 @@ public class EtlLog : Root
     public bool HasIssues => State == EtlState.Failed || State == EtlState.Cancelled;
 
     public override string ToString() =>
-        $"[{ExecutionDate:yyyy-MM-dd HH:mm:ss}] {State} | Registros: {ProcessedRecords} | Duración: {DurationSeconds}s";
+        FormattableString.Invariant(
+            $"[{ExecutionDate:yyyy-MM-dd HH:mm:ss}] {State} | Registros: {ProcessedRecords} | Duración: {DurationSeconds}s");
 }

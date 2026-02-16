@@ -25,7 +25,7 @@ public class Company : Root
     /// 
     /// Máximo 300 caracteres (según datos reales de Gov.co)
     /// </summary>
-    public string Code { get; set; } = null!;
+    public string Code { get; private set; } = null!;
 
     /// <summary>
     /// Constructor privado requerido por EF Core
@@ -52,8 +52,9 @@ public class Company : Root
 
         Id = Guid.CreateVersion7();
         Code = code;
-        CreatedAt = DateTime.UtcNow;
-        DateUpdated = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
+        CreatedAt = now;
+        DateUpdated = now;
     }
 
     /// <summary>

@@ -1,8 +1,10 @@
 using System;
+using System.Threading.Tasks;
 using NSubstitute;
-using TarifasElectricas.Application.Contracts.Persistence;
-using TarifasElectricas.Application.Exceptions;
+using Xunit;
+using TarifasElectricas.Application.Contracts.Repositories;
 using TarifasElectricas.Application.UseCases.Queries.GetTariffById;
+using TarifasElectricas.Application.Exceptions;
 using TarifasElectricas.Domain.Entities;
 using TarifasElectricas.Domain.ValueObjects;
 
@@ -10,48 +12,58 @@ namespace TarifasElectricas.Test.Application.UseCases.Queries;
 
 public class GetTariffByIdQueryHandlerTests
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IElectricityTariffRepository _tariffs;
     private readonly GetTariffByIdQueryHandler _handler;
 
     public GetTariffByIdQueryHandlerTests()
     {
-        _unitOfWork = Substitute.For<IUnitOfWork>();
-        _handler = new GetTariffByIdQueryHandler(_unitOfWork);
+        _tariffs = Substitute.For<IElectricityTariffRepository>();
+        _handler = new GetTariffByIdQueryHandler(_tariffs);
     }
 
     [Fact]
     public async Task Handle_WithValidId_ReturnsTariff()
     {
         // Arrange
-        var period = new TariffPeriod(2025, 2, "BT1", "Baja Tensión", "Distribuidora A");
-        var costs = new TariffCosts(0.45m, 0.12m, 0.08m, 0.05m, 0.03m, 0.02m, 0.01m, 0.10m, 0.04m);
-        var tariff = new ElectricityTariff(period, costs);
+        var companyId = Guid.NewGuid();
+        var tariff = new ElectricityTariff(
+            new TariffPeriod(2025, "Enero", "Nivel 1 (Propiedad OR)", "ENEL Bogotá - Cundinamarca", 2025),
+            new TariffCosts(810.46m, 372.46m, 56.03m, 280.91m, 24.86m, 72.49m, 3.71m, 0m, 9.813m),
+            companyId);
+        var tariffId = tariff.Id;
 
-        _unitOfWork.ElectricityTariffs.GetByIdAsync(tariff.Id)
-            .Returns(Task.FromResult((ElectricityTariff?)tariff));
+        var query = new GetTariffByIdQuery(tariffId);
 
-        var query = new GetTariffByIdQuery(tariff.Id);
+        // Mock
+        _tariffs.GetByIdAsync(tariffId).Returns(Task.FromResult<ElectricityTariff?>(tariff));
 
         // Act
         var response = await _handler.Handle(query);
 
         // Assert
         Assert.NotNull(response);
-        Assert.Equal(tariff.Id, response.Id);
+        Assert.Equal(tariffId, response.Id);
         Assert.Equal(2025, response.Year);
+        Assert.Equal("Enero", response.Period);
+        Assert.Equal("Nivel 1 (Propiedad OR)", response.Level);
+        Assert.Equal("ENEL Bogotá - Cundinamarca", response.TariffOperator);
+        Assert.Equal(companyId, response.CompanyId);
+        var expectedTotal = 810.46m + 372.46m + 56.03m + 280.91m + 24.86m + 72.49m + 3.71m + 0m + 9.813m;
+        Assert.Equal(expectedTotal, response.TotalCosts);
     }
 
     [Fact]
     public async Task Handle_WithNonExistentId_ThrowsApplicationCaseException()
     {
         // Arrange
-        _unitOfWork.ElectricityTariffs.GetByIdAsync(Arg.Any<Guid>())
-            .Returns(Task.FromResult((ElectricityTariff?)null));
+        var tariffId = Guid.NewGuid();
+        var query = new GetTariffByIdQuery(tariffId);
 
-        var query = new GetTariffByIdQuery(Guid.NewGuid());
+        // Mock: Tarifa no existe
+        _tariffs.GetByIdAsync(tariffId).Returns(Task.FromResult<ElectricityTariff?>(null));
 
         // Act & Assert
-        await Assert.ThrowsAsync<ApplicationCaseException>(() => _handler.Handle(query));
+        var ex = await Assert.ThrowsAsync<ApplicationCaseException>(() => _handler.Handle(query));
+        Assert.Contains("Tarifa con ID", ex.Message);
     }
 }
-

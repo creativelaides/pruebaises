@@ -17,21 +17,21 @@ public class TariffPeriod
     /// Año de la tarifa (ej: 2025)
     /// Validación: Entre 1900 y año actual + 1
     /// </summary>
-    public int Year { get; init; }
+    public int Year { get; }
 
     /// <summary>
     /// Período específico dentro del año (ej: "Enero", "Enero-Marzo")
     /// Tal como viene del dataset de Gov.co
     /// Validación: No vacío, máximo 100 caracteres
     /// </summary>
-    public string Period { get; init; } = null!;
+    public string Period { get; } = null!;
 
     /// <summary>
     /// Nivel o categoría del cliente (ej: "Nivel 1 (Propiedad OR)", "NIVEL II")
     /// Tal como viene del dataset de Gov.co
     /// Validación: No vacío, máximo 100 caracteres
     /// </summary>
-    public string Level { get; init; } = null!;
+    public string Level { get; } = null!;
 
     /// <summary>
     /// Operador/empresa distribuidora (ej: "ENEL Bogotá - Cundinamarca")
@@ -39,14 +39,14 @@ public class TariffPeriod
     /// Se mantiene aquí para preservar los datos tal como vienen del origen
     /// Validación: No vacío, máximo 300 caracteres
     /// </summary>
-    public string TariffOperator { get; init; } = null!;
+    public string TariffOperator { get; } = null!;
 
     /// <summary>
     /// Constructor principal con validaciones
     /// </summary>
-    public TariffPeriod(int year, string period, string level, string tariffOperator)
+    public TariffPeriod(int year, string period, string level, string tariffOperator, int currentYear)
     {
-        ValidatePeriod(year, period, level, tariffOperator);
+        ValidatePeriod(year, period, level, tariffOperator, currentYear);
 
         Year = year;
         Period = period;
@@ -63,11 +63,12 @@ public class TariffPeriod
     ///   - Level: No vacío (ej: "Nivel 1 (Propiedad OR)", "NIVEL II", etc)
     ///   - TariffOperator: No vacío (operador_de_red de Gov.co)
     /// </summary>
-    private static void ValidatePeriod(int year, string period, string level, string tariffOperator)
+    private static void ValidatePeriod(int year, string period, string level, string tariffOperator, int currentYear)
     {
-        if (year < 1900 || year > DateTime.UtcNow.Year + 1)
+        var maxYear = currentYear + 1;
+        if (year < 1900 || year > maxYear)
             throw new DomainRuleException(
-                $"El año debe estar entre 1900 y {DateTime.UtcNow.Year + 1}");
+                $"El año debe estar entre 1900 y {maxYear}");
 
         if (string.IsNullOrWhiteSpace(period))
             throw new DomainRuleException("El período es requerido");

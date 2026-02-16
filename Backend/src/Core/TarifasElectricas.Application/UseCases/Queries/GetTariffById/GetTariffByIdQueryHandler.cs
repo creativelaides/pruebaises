@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using TarifasElectricas.Application.Contracts.Persistence;
+using Mapster;
+using TarifasElectricas.Application.Contracts.Repositories;
 using TarifasElectricas.Application.Exceptions;
 
 namespace TarifasElectricas.Application.UseCases.Queries.GetTariffById;
@@ -9,38 +10,22 @@ namespace TarifasElectricas.Application.UseCases.Queries.GetTariffById;
 /// Handler para GetTariffByIdQuery.
 /// WolverineFx lo descubre automáticamente.
 /// </summary>
-public class GetTariffByIdQueryHandler(IUnitOfWork unitOfWork)
+public class GetTariffByIdQueryHandler(IElectricityTariffRepository tariffs)
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+    private readonly IElectricityTariffRepository _tariffs = tariffs ?? throw new ArgumentNullException(nameof(tariffs));
 
     public async Task<GetTariffByIdResponse> Handle(GetTariffByIdQuery query)
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        try
+        return await HandlerGuard.ExecuteAsync(async () =>
         {
-            var tariff = await _unitOfWork.ElectricityTariffs.GetByIdAsync(query.Id);
+            var tariff = await _tariffs.GetByIdAsync(query.Id);
 
             if (tariff == null)
                 throw new ApplicationCaseException($"Tarifa con ID {query.Id} no encontrada");
 
-            return new GetTariffByIdResponse(
-            tariff.Id,
-            tariff.Period.Year,
-            tariff.Period.Period,
-            tariff.Period.Level,
-            tariff.Period.TariffOperator,
-            tariff.CompanyId,
-            tariff.GetTotalCosts(),
-            tariff.CreatedAt);
-        }
-        catch (ApplicationCaseException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new ApplicationCaseException($"Error al obtener la tarifa: {ex.Message}", ex);
-        }
+            return tariff.Adapt<GetTariffByIdResponse>();
+        }, "Error al obtener la tarifa");
     }
 }

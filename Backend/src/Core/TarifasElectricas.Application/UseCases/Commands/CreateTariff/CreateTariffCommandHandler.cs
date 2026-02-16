@@ -2,10 +2,11 @@ namespace TarifasElectricas.Application.UseCases.Commands.CreateTariff;
 
 using System;
 using System.Threading.Tasks;
+using Mapster;
 using TarifasElectricas.Application.Contracts.Persistence;
+using TarifasElectricas.Application.Contracts.Repositories;
 using TarifasElectricas.Application.Exceptions;
 using TarifasElectricas.Domain.Entities;
-using TarifasElectricas.Domain.Exceptions;
 using TarifasElectricas.Domain.ValueObjects;
 
 /// <summary>
@@ -22,29 +23,35 @@ using TarifasElectricas.Domain.ValueObjects;
 /// </summary>
 public class CreateTariffCommandHandler
 {
+    private readonly IElectricityTariffRepository _tariffs;
+    private readonly ICompanyRepository _companies;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreateTariffCommandHandler(IUnitOfWork unitOfWork)
+    public CreateTariffCommandHandler(
+        IElectricityTariffRepository tariffs,
+        ICompanyRepository companies,
+        IUnitOfWork unitOfWork)
     {
+        _tariffs = tariffs ?? throw new ArgumentNullException(nameof(tariffs));
+        _companies = companies ?? throw new ArgumentNullException(nameof(companies));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
     public async Task<CreateTariffResponse> Handle(CreateTariffCommand command)
     {
-        if (command == null)
-            throw new ArgumentNullException(nameof(command));
+        ArgumentNullException.ThrowIfNull(command);
 
-        try
+        return await HandlerGuard.ExecuteAsync(async () =>
         {
             // ✅ NUEVO: Validar que Company existe
-            var company = await _unitOfWork.Companies.GetByIdAsync(command.CompanyId);
+            var company = await _companies.GetByIdAsync(command.CompanyId);
             if (company == null)
                 throw new ApplicationCaseException(
                     $"Empresa con ID {command.CompanyId} no encontrada");
 
             // Verificar duplicado por período
-            var existing = await _unitOfWork.ElectricityTariffs
-                .GetByPeriodAsync(command.Year, command.Period ?? "Unknown");
+            var existing = await _tariffs
+                .GetByPeriodAsync(command.Year, command.Period!);
 
             if (existing != null)
                 throw new ApplicationCaseException(
@@ -53,9 +60,10 @@ public class CreateTariffCommandHandler
             // ✅ ACTUALIZAR: Crear TariffPeriod SIN Month, con TariffOperator
             var period = new TariffPeriod(
                 command.Year,
-                command.Period ?? "Unknown",
-                command.Level ?? "Unknown",
-                command.TariffOperator ?? "Unknown");
+                command.Period!,
+                command.Level!,
+                command.TariffOperator!,
+                DateTime.UtcNow.Year);
 
             // Crear TariffCosts
             var costs = new TariffCosts(
@@ -73,33 +81,11 @@ public class CreateTariffCommandHandler
             var tariff = new ElectricityTariff(period, costs, command.CompanyId);
 
             // Persistir
-            await _unitOfWork.ElectricityTariffs.AddAsync(tariff);
+            await _tariffs.AddAsync(tariff);
             await _unitOfWork.SaveChangesAsync();
 
             // Retornar response
-            return new CreateTariffResponse(
-                tariff.Id,
-                tariff.Period.Year,
-                tariff.Period.Period,
-                tariff.Period.Level,
-                tariff.Period.TariffOperator,
-                command.CompanyId,
-                tariff.GetTotalCosts(),
-                tariff.CreatedAt);
-        }
-        catch (DomainRuleException ex)
-        {
-            throw new ApplicationCaseException(
-                $"Error de validación en el dominio: {ex.Message}", ex);
-        }
-        catch (ApplicationCaseException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new ApplicationCaseException(
-                $"Error al crear la tarifa: {ex.Message}", ex);
-        }
+            return tariff.Adapt<CreateTariffResponse>();
+        }, "Error al crear la tarifa");
     }
 }

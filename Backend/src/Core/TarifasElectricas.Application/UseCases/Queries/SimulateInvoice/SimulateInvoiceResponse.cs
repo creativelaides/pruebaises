@@ -18,4 +18,4 @@ public record SimulateInvoiceResponse(
     decimal TransportCost,
     decimal MarketingCost,
     decimal TotalCost,
-    List<InvoiceComponent> Components);
+    IReadOnlyList<InvoiceComponent> Components);

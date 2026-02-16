@@ -1,6 +1,3 @@
-using System;
-using TarifasElectricas.Domain.Entities.EntityRoot;
-
 namespace TarifasElectricas.Domain.Enums;
 
 /// <summary>

@@ -1,7 +1,8 @@
 using System;
+using Mapster;
 using TarifasElectricas.Application.Contracts.Persistence;
+using TarifasElectricas.Application.Contracts.Repositories;
 using TarifasElectricas.Application.Exceptions;
-using TarifasElectricas.Domain.Exceptions;
 using TarifasElectricas.Domain.ValueObjects;
 
 namespace TarifasElectricas.Application.UseCases.Commands.UpdateTariff;
@@ -10,18 +11,21 @@ namespace TarifasElectricas.Application.UseCases.Commands.UpdateTariff;
 /// Handler para UpdateTariffCommand.
 /// WolverineFx lo descubre automáticamente.
 /// </summary>
-public class UpdateTariffCommandHandler(IUnitOfWork unitOfWork)
+public class UpdateTariffCommandHandler(
+    IElectricityTariffRepository tariffs,
+    IUnitOfWork unitOfWork)
 {
+    private readonly IElectricityTariffRepository _tariffs = tariffs ?? throw new ArgumentNullException(nameof(tariffs));
     private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
 
     public async Task<UpdateTariffResponse> Handle(UpdateTariffCommand command)
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        try
+        return await HandlerGuard.ExecuteAsync(async () =>
         {
             // Obtener la tarifa existente
-            var tariff = await _unitOfWork.ElectricityTariffs.GetByIdAsync(command.Id);
+            var tariff = await _tariffs.GetByIdAsync(command.Id);
 
             if (tariff == null)
                 throw new ApplicationCaseException($"Tarifa con ID {command.Id} no encontrada");
@@ -43,32 +47,12 @@ public class UpdateTariffCommandHandler(IUnitOfWork unitOfWork)
             tariff.UpdateCosts(newCosts);
 
             // Persistir
-            await _unitOfWork.ElectricityTariffs.UpdateAsync(tariff);
+            await _tariffs.UpdateAsync(tariff);
             await _unitOfWork.SaveChangesAsync();
 
             // Retornar response
-            return new UpdateTariffResponse(
-                tariff.Id,
-                tariff.Period.Year,
-                tariff.Period.Period,
-                tariff.Period.Level,
-                tariff.Period.TariffOperator,
-                tariff.CompanyId,
-                tariff.GetTotalCosts(),
-                tariff.DateUpdated);
-        }
-        catch (DomainRuleException ex)
-        {
-            throw new ApplicationCaseException($"Error de validación en el dominio: {ex.Message}", ex);
-        }
-        catch (ApplicationCaseException)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            throw new ApplicationCaseException($"Error al actualizar la tarifa: {ex.Message}", ex);
-        }
+            return tariff.Adapt<UpdateTariffResponse>();
+        }, "Error al actualizar la tarifa");
     }
 }
 

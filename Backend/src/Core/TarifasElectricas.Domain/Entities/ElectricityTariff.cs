@@ -28,12 +28,12 @@ public class ElectricityTariff : Root
     /// Período temporal y contextual de la tarifa
     /// (Year, Period, Level, Operator)
     /// </summary>
-    public TariffPeriod Period { get; set; } = null!;
+    public TariffPeriod Period { get; private set; } = null!;
 
     /// <summary>
     /// Componentes de costo (9 valores numéricos de Gov.co)
     /// </summary>
-    public TariffCosts Costs { get; set; } = null!;
+    public TariffCosts Costs { get; private set; } = null!;
 
     /// <summary>
     /// Referencia a la empresa/operador distribuidor
@@ -44,7 +44,7 @@ public class ElectricityTariff : Root
     /// - Consultas por operador
     /// - Simulación de factura (para mostrar empresa)
     /// </summary>
-    public Guid CompanyId { get; set; }
+    public Guid CompanyId { get; private set; }
 
     /// <summary>
     /// Constructor privado requerido por EF Core
@@ -100,6 +100,56 @@ public class ElectricityTariff : Root
     }
 
     /// <summary>
+    /// Simula una factura para un consumo en kWh.
+    /// Devuelve el desglose por componentes y el total.
+    /// </summary>
+    public InvoiceSimulation SimulateInvoice(decimal kwhConsumption)
+    {
+        if (kwhConsumption <= 0)
+            throw new DomainRuleException("El consumo en kWh debe ser mayor a 0");
+
+        var consumptionCost = kwhConsumption * (Costs.TotalCu ?? 0);
+        var transportCost = kwhConsumption *
+            ((Costs.ChargeTransportStnTm ?? 0) + (Costs.ChargeTransportSdlDm ?? 0));
+        var marketingCost = kwhConsumption * (Costs.MarketingMargin ?? 0);
+        var totalCost = consumptionCost + transportCost + marketingCost;
+
+        var components = new List<InvoiceComponent>();
+
+        if (consumptionCost > 0)
+        {
+            components.Add(new InvoiceComponent(
+                "Consumo de Energía",
+                consumptionCost,
+                "Lo que pagas por la electricidad que consumiste en tu hogar"));
+        }
+
+        if (transportCost > 0)
+        {
+            components.Add(new InvoiceComponent(
+                "Transporte y Distribución",
+                transportCost,
+                "El costo de llevar la energía desde las plantas generadoras hasta tu casa"));
+        }
+
+        if (marketingCost > 0)
+        {
+            components.Add(new InvoiceComponent(
+                "Comercialización",
+                marketingCost,
+                "El servicio de lectura del contador, facturación y atención al cliente"));
+        }
+
+        return new InvoiceSimulation(
+            kwhConsumption,
+            consumptionCost,
+            transportCost,
+            marketingCost,
+            totalCost,
+            components);
+    }
+
+    /// <summary>
     /// Calcula el costo total de la tarifa sumando todos los componentes
     /// 
     /// Utilidad: Para mostrar el total en factura simulada
@@ -111,6 +161,11 @@ public class ElectricityTariff : Root
     /// Formato: "Año/Período - Nivel - Operador - CostoTotal"
     /// Ej: "2025/Enero - Nivel 1 (Propiedad OR) - ENEL Bogotá - 810.46"
     /// </summary>
-    public override string ToString() =>
-        $"{Period} - Costo Total: {GetTotalCosts()}";
+    public override string ToString()
+    {
+        var totalCosts = GetTotalCosts();
+        var totalCu = Costs.TotalCu ?? 0;
+        return FormattableString.Invariant(
+            $"{Period} - Costo Total: {totalCosts} - CU: {totalCu}");
+    }
 }

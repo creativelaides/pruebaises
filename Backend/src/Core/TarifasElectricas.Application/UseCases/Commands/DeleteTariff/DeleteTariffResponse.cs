@@ -1,4 +1,4 @@
-namespace TarifasElectricas.Application.UseCases.Commands.CreateTariff;
+namespace TarifasElectricas.Application.UseCases.Commands.DeleteTariff;
 
 /// <summary>
 /// Respuesta del comando DeleteTariffCommand.

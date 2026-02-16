@@ -25,6 +25,8 @@ public class GetTariffByPeriodQueryValidator : AbstractValidator<GetTariffByPeri
         RuleFor(x => x.Period)
             .NotEmpty()
             .WithMessage("El período es requerido")
+            .Must(s => !string.IsNullOrWhiteSpace(s))
+            .WithMessage("El período no puede estar vacío")
             .MaximumLength(100)
             .WithMessage("El período no puede exceder 100 caracteres");
     }

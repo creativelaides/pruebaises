@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using NSubstitute;
-using TarifasElectricas.Application.Contracts.Persistence;
+using Xunit;
+using TarifasElectricas.Application.Contracts.Repositories;
 using TarifasElectricas.Application.UseCases.Queries.GetAllTariffs;
 using TarifasElectricas.Domain.Entities;
 using TarifasElectricas.Domain.ValueObjects;
@@ -9,33 +12,38 @@ namespace TarifasElectricas.Test.Application.UseCases.Queries;
 
 public class GetAllTariffsQueryHandlerTests
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IElectricityTariffRepository _tariffs;
     private readonly GetAllTariffsQueryHandler _handler;
 
     public GetAllTariffsQueryHandlerTests()
     {
-        _unitOfWork = Substitute.For<IUnitOfWork>();
-        _handler = new GetAllTariffsQueryHandler(_unitOfWork);
+        _tariffs = Substitute.For<IElectricityTariffRepository>();
+        _handler = new GetAllTariffsQueryHandler(_tariffs);
     }
 
     [Fact]
     public async Task Handle_WithTariffs_ReturnsAllTariffs()
     {
         // Arrange
-        var period1 = new TariffPeriod(2025, 1, "BT1", "Baja Tensión", "Distribuidora A");
-        var costs1 = new TariffCosts(0.45m, 0.12m, 0.08m, 0.05m, 0.03m, 0.02m, 0.01m, 0.10m, 0.04m);
-        var tariff1 = new ElectricityTariff(period1, costs1);
+        var companyId1 = Guid.NewGuid();
+        var companyId2 = Guid.NewGuid();
 
-        var period2 = new TariffPeriod(2025, 2, "BT1", "Baja Tensión", "Distribuidora A");
-        var costs2 = new TariffCosts(0.50m, 0.13m, 0.09m, 0.06m, 0.03m, 0.02m, 0.01m, 0.11m, 0.05m);
-        var tariff2 = new ElectricityTariff(period2, costs2);
-
-        var tariffs = new List<ElectricityTariff> { tariff1, tariff2 };
-
-        _unitOfWork.ElectricityTariffs.GetAllAsync()
-            .Returns(Task.FromResult((IEnumerable<ElectricityTariff>)tariffs));
+        var tariffs = new List<ElectricityTariff>
+        {
+            new ElectricityTariff(
+                new TariffPeriod(2025, "Enero", "Nivel 1 (Propiedad OR)", "ENEL Bogotá - Cundinamarca", 2025),
+                new TariffCosts(810.46m, 372.46m, 56.03m, 280.91m, 24.86m, 72.49m, 3.71m, 0m, 9.813m),
+                companyId1),
+            new ElectricityTariff(
+                new TariffPeriod(2025, "Enero", "Nivel 1 (Propiedad OR)", "CELSIA Colombia - Valle del Cauca", 2025),
+                new TariffCosts(841m, 374.18m, 56.03m, 257.74m, 78.71m, 70.63m, 3.71m, 56.79m, 16.16m),
+                companyId2)
+        };
 
         var query = new GetAllTariffsQuery();
+
+        // Mock
+        _tariffs.GetAllAsync().Returns(Task.FromResult<IEnumerable<ElectricityTariff>>(tariffs));
 
         // Act
         var response = await _handler.Handle(query);
@@ -44,22 +52,29 @@ public class GetAllTariffsQueryHandlerTests
         Assert.NotNull(response);
         Assert.NotNull(response.Tariffs);
         Assert.Equal(2, response.Tariffs.Count());
+
+        var tariffList = response.Tariffs.ToList();
+        Assert.All(tariffList, t => Assert.Equal(2025, t.Year));
+        Assert.Contains(tariffList, t => t.CompanyId == companyId1);
+        Assert.Contains(tariffList, t => t.CompanyId == companyId2);
     }
 
     [Fact]
     public async Task Handle_WithNoTariffs_ReturnsEmptyList()
     {
         // Arrange
-        _unitOfWork.ElectricityTariffs.GetAllAsync()
-            .Returns(Task.FromResult((IEnumerable<ElectricityTariff>)new List<ElectricityTariff>()));
-
         var query = new GetAllTariffsQuery();
+        var emptyList = new List<ElectricityTariff>();
+
+        // Mock
+        _tariffs.GetAllAsync().Returns(Task.FromResult<IEnumerable<ElectricityTariff>>(emptyList));
 
         // Act
         var response = await _handler.Handle(query);
 
         // Assert
         Assert.NotNull(response);
+        Assert.NotNull(response.Tariffs);
         Assert.Empty(response.Tariffs);
     }
 }

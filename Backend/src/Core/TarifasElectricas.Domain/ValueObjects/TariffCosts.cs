@@ -160,6 +160,18 @@ public class TariffCosts
     /// <summary>
     /// Hash code basado en algunas de las propiedades
     /// </summary>
-    public override int GetHashCode() =>
-        HashCode.Combine(TotalCu, PurchaseCostG, CostLossesPr, RestrictionsRm, Cot, CfmjGfact);
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+        hash.Add(TotalCu);
+        hash.Add(PurchaseCostG);
+        hash.Add(ChargeTransportStnTm);
+        hash.Add(ChargeTransportSdlDm);
+        hash.Add(MarketingMargin);
+        hash.Add(CostLossesPr);
+        hash.Add(RestrictionsRm);
+        hash.Add(Cot);
+        hash.Add(CfmjGfact);
+        return hash.ToHashCode();
+    }
 }

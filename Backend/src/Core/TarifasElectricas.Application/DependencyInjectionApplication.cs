@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using FluentValidation;
 using Mapster;
+using TarifasElectricas.Application.Mapping;
 using Wolverine;
 
 namespace TarifasElectricas.Application;
@@ -15,6 +16,7 @@ public static class DependencyInjectionApplication
 
         // Add Mapster
         var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
+        MapsterConfig.Register(typeAdapterConfig);
         typeAdapterConfig.Scan(Assembly.GetExecutingAssembly());
 
         // ✅ WolverineFx: Descubre automáticamente TODOS los handlers

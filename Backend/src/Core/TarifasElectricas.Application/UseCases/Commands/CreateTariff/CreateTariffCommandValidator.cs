@@ -26,15 +26,27 @@ public class CreateTariffCommandValidator : AbstractValidator<CreateTariffComman
 
         RuleFor(x => x.Period)
             .NotEmpty()
-            .WithMessage("El período es requerido");
+            .WithMessage("El período es requerido")
+            .Must(s => !string.IsNullOrWhiteSpace(s))
+            .WithMessage("El período no puede estar vacío")
+            .MaximumLength(100)
+            .WithMessage("El período no puede exceder 100 caracteres");
 
         RuleFor(x => x.Level)
             .NotEmpty()
-            .WithMessage("El nivel es requerido");
+            .WithMessage("El nivel es requerido")
+            .Must(s => !string.IsNullOrWhiteSpace(s))
+            .WithMessage("El nivel no puede estar vacío")
+            .MaximumLength(100)
+            .WithMessage("El nivel no puede exceder 100 caracteres");
 
         RuleFor(x => x.TariffOperator)
             .NotEmpty()
-            .WithMessage("El operador es requerido");
+            .WithMessage("El operador es requerido")
+            .Must(s => !string.IsNullOrWhiteSpace(s))
+            .WithMessage("El operador no puede estar vacío")
+            .MaximumLength(300)
+            .WithMessage("El operador no puede exceder 300 caracteres");
 
         // ✅ NUEVO: Validar CompanyId
         RuleFor(x => x.CompanyId)

@@ -1,5 +1,6 @@
 using System;
-using TarifasElectricas.Application.Contracts.Persistence;
+using Mapster;
+using TarifasElectricas.Application.Contracts.Repositories;
 using TarifasElectricas.Application.Exceptions;
 
 namespace TarifasElectricas.Application.UseCases.Queries.GetAllTariffs;
@@ -8,36 +9,28 @@ namespace TarifasElectricas.Application.UseCases.Queries.GetAllTariffs;
 /// Handler para GetAllTariffsQuery.
 /// WolverineFx lo descubre automáticamente.
 /// </summary>
-public class GetAllTariffsQueryHandler(IUnitOfWork unitOfWork)
+public class GetAllTariffsQueryHandler(IElectricityTariffRepository tariffs)
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+    private readonly IElectricityTariffRepository _tariffs = tariffs ?? throw new ArgumentNullException(nameof(tariffs));
 
     public async Task<GetAllTariffsResponse> Handle(GetAllTariffsQuery query)
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        try
+        return await HandlerGuard.ExecuteAsync(async () =>
         {
-            var tariffs = await _unitOfWork.ElectricityTariffs.GetAllAsync();
+            var tariffs = await _tariffs.GetAllAsync();
 
+            var skip = (query.Page - 1) * query.PageSize;
             var tariffItems = tariffs
-            .Select(t => new GetAllTariffsResponse.TariffItem(
-                t.Id,
-                t.Period.Year,
-                t.Period.Period,
-                t.Period.Level,
-                t.Period.TariffOperator,
-                t.CompanyId,
-                t.GetTotalCosts(),
-                t.CreatedAt))
-            .ToList();
+                .OrderByDescending(t => t.CreatedAt)
+                .Skip(skip)
+                .Take(query.PageSize)
+                .Select(t => t.Adapt<GetAllTariffsResponse.TariffItem>())
+                .ToList();
 
             return new GetAllTariffsResponse(tariffItems);
-        }
-        catch (Exception ex)
-        {
-            throw new ApplicationCaseException($"Error al obtener las tarifas: {ex.Message}", ex);
-        }
+        }, "Error al obtener las tarifas");
     }
 }
 
