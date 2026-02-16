@@ -6,7 +6,7 @@
 
 This project is a full-stack web application designed to monitor and visualize electricity tariffs in Colombia, utilizing public data from `datos.gov.co`. Built as a technical test submission, it features a .NET backend with Clean Architecture, an Angular frontend, and a PostgreSQL database.
 
-For more details about the project, please refer to the [GEMINI.md](GEMINI.md) file.
+For more details about the project, please refer to the [AGENT.md](AGENT.md) file.
 
 ## Technologies
 

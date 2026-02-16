@@ -1,4 +1,4 @@
-# GEMINI.md - Project Context
+# AGENT.md - Project Context
 
 ## Directory Overview
 
@@ -17,13 +17,6 @@ The proposed technology stack is:
 
 *   `PRUEBA_TECNICA_FULLSTACK.md`: The original problem statement for the technical test. It describes the requirements for the ETL process, a REST API, and a frontend interface.
 
-*   `PLAN_TARIFAS_EPM.md`: The detailed development plan. This is the core document, containing:
-    *   Proposed architecture for both backend and frontend.
-    *   Database schemas (for both minimal and full versions).
-    *   Backend and frontend project structure.
-    *   API endpoint definitions.
-    *   A development checklist and timeline.
-
 *   `Diagrams/`: This folder contains Mermaid diagrams that visually represent the system.
     *   `diagrama-arquitectura.mermaid`: High-level architecture of the Frontend, Backend, and external services.
     *   `diagrama-clases.mermaid`: Detailed class diagram for the .NET backend.
@@ -39,4 +32,3 @@ This directory serves as the blueprint for the software development project. The
 *   The planned technical implementation.
 *   The system's architecture and data flow.
 
-The next step, based on these documents, would be to start implementing the source code for the backend and frontend as described in `PLAN_TARIFAS_EPM.md`.

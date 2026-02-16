@@ -7,4 +7,7 @@
   <Folder Name="/src/Infrastructure/">
     <Project Path="src/Infrastructure/TarifasElectricas.Persitence/TarifasElectricas.Persitence.csproj" />
   </Folder>
+  <Folder Name="/src/Test/">
+    <Project Path="src/Test/TarifasElectricas.Test/TarifasElectricas.Test.csproj" />
+  </Folder>
 </Solution>
