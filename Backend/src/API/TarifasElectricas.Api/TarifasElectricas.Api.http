@@ -1,0 +1,69 @@
+@TarifasElectricas.Api_HostAddress = http://localhost:8866
+
+### Crear tarifa
+POST {{TarifasElectricas.Api_HostAddress}}/api/tariffs
+Content-Type: application/json
+
+{
+  "year": 2025,
+  "period": "Enero",
+  "level": "Nivel 1 (Propiedad OR)",
+  "tariffOperator": "ENEL Bogotá - Cundinamarca",
+  "companyId": "00000000-0000-0000-0000-000000000000",
+  "totalCu": 810.46,
+  "purchaseCostG": 372.46,
+  "chargeTransportStnTm": 56.03,
+  "chargeTransportSdlDm": 280.91,
+  "marketingMargin": 24.86,
+  "costLossesPr": 72.49,
+  "restrictionsRm": 3.71,
+  "cot": 0,
+  "cfmjGfact": 9.813
+}
+
+### Actualizar tarifa
+PUT {{TarifasElectricas.Api_HostAddress}}/api/tariffs/{{tariffId}}
+Content-Type: application/json
+
+{
+  "totalCu": 820.00,
+  "purchaseCostG": 380.00,
+  "chargeTransportStnTm": 60.00,
+  "chargeTransportSdlDm": 280.00,
+  "marketingMargin": 25.00,
+  "costLossesPr": 73.00,
+  "restrictionsRm": 3.50,
+  "cot": 0,
+  "cfmjGfact": 9.900
+}
+
+### Eliminar tarifa
+DELETE {{TarifasElectricas.Api_HostAddress}}/api/tariffs/{{tariffId}}
+
+### Obtener tarifa por ID
+GET {{TarifasElectricas.Api_HostAddress}}/api/tariffs/{{tariffId}}
+Accept: application/json
+
+### Obtener tarifa por periodo
+GET {{TarifasElectricas.Api_HostAddress}}/api/tariffs/by-period?year=2025&period=Enero
+Accept: application/json
+
+### Obtener tarifa más reciente
+GET {{TarifasElectricas.Api_HostAddress}}/api/tariffs/latest
+Accept: application/json
+
+### Listar tarifas
+GET {{TarifasElectricas.Api_HostAddress}}/api/tariffs?page=1&pageSize=50
+Accept: application/json
+
+### Simular factura
+POST {{TarifasElectricas.Api_HostAddress}}/api/invoices/simulate
+Content-Type: application/json
+
+{
+  "tariffId": "{{tariffId}}",
+  "kwhConsumption": 120
+}
+
+### Ejecutar ETL
+POST {{TarifasElectricas.Api_HostAddress}}/api/etl/run
