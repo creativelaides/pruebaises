@@ -1,0 +1,40 @@
+services:
+  postgre:
+    image: postgres:${DB_TAG_VERSION}
+    restart: always
+    container_name: ${DB_NAME}
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_HOST_AUTH_METHOD: 'trust'
+    ports:
+      - ${DB_PORT}:5432
+    volumes:
+      - postgre_db:/var/lib/postgresql/data
+    networks:
+      - database
+  
+  pgadmin:
+    image: dpage/pgadmin4:${PG_TAG_VERSION}
+    restart: always
+    depends_on:
+      - postgre
+    container_name: ${PG_NAME}
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PG_MAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PG_PASS}
+    ports:
+      - ${PG_PORT}:80
+    volumes:
+      - pg_admin:/var/lib/pgadmin
+    networks:
+      - database
+
+networks:
+  database:
+    driver: bridge
+
+volumes:
+  postgre_db:
+  pg_admin:
