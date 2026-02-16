@@ -1,38 +1,116 @@
 using System;
-using TarifasElectricas.Domain.Entities.EntityRoot;
-using TarifasElectricas.Domain.ValueObjects;
-
 namespace TarifasElectricas.Domain.Entities;
 
+using TarifasElectricas.Domain.Entities.EntityRoot;
+using TarifasElectricas.Domain.Exceptions;
+using TarifasElectricas.Domain.ValueObjects;
+
+/// <summary>
+/// Entidad que representa una tarifa de energía eléctrica del mercado regulado.
+/// 
+/// Una tarifa es la combinación de:
+/// - Un período temporal (año, período específico de Gov.co)
+/// - Un nivel/categoría de cliente (Nivel 1, NIVEL II, etc)
+/// - Una empresa operadora (ENEL, CELSIA, etc)
+/// - Un conjunto de componentes de costo (9 componentes de Gov.co)
+/// 
+/// Fuente: Dataset "Superservicios Tarifas Publicadas Energía" de Gov.co
+/// Actualización: Mensual (aproximadamente)
+/// 
+/// La tarifa se utiliza para:
+/// 1. Persistir datos crudos de Gov.co en la BD
+/// 2. Simular facturas de consumo eléctrico
+/// 3. Proporcionar información educativa sobre componentes de costo
+/// </summary>
 public class ElectricityTariff : Root
 {
+    /// <summary>
+    /// Período temporal y contextual de la tarifa
+    /// (Year, Period, Level, Operator)
+    /// </summary>
     public TariffPeriod Period { get; set; } = null!;
-    public TariffCosts Costs { get; set; } = null!;
-    public DateTime DateUpdated { get; set; }
-    public DateTime CreatedAt { get; set; }
 
     /// <summary>
-    /// Constructor privado para EF Core
+    /// Componentes de costo (9 valores numéricos de Gov.co)
+    /// </summary>
+    public TariffCosts Costs { get; set; } = null!;
+
+    /// <summary>
+    /// Referencia a la empresa/operador distribuidor
+    /// 
+    /// Foreign Key que apunta a Company.Id
+    /// Necesaria para:
+    /// - Integridad referencial en BD
+    /// - Consultas por operador
+    /// - Simulación de factura (para mostrar empresa)
+    /// </summary>
+    public Guid CompanyId { get; set; }
+
+    /// <summary>
+    /// Constructor privado requerido por EF Core
     /// </summary>
     private ElectricityTariff() { }
 
     /// <summary>
-    /// Constructor público para crear una nueva tarifa eléctrica
+    /// Constructor público para crear una nueva tarifa.
+    /// 
+    /// Parámetros:
+    ///   period: Período, nivel, operador (TariffPeriod VO)
+    ///   costs: 9 componentes de costo (TariffCosts VO)
+    ///   companyId: ID de la empresa/operador (FK a Company)
+    /// 
+    /// Validaciones:
+    ///   - period no puede ser null
+    ///   - costs no puede ser null
+    ///   - companyId no puede ser Guid.Empty
     /// </summary>
-    public ElectricityTariff(TariffPeriod period, TariffCosts costs)
+    public ElectricityTariff(TariffPeriod period, TariffCosts costs, Guid companyId)
     {
+        if (period == null)
+            throw new DomainRuleException("El período es requerido");
+
+        if (costs == null)
+            throw new DomainRuleException("Los costos son requeridos");
+
+        if (companyId == Guid.Empty)
+            throw new DomainRuleException("El ID de la empresa es requerido");
+
         Id = Guid.CreateVersion7();
         Period = period;
         Costs = costs;
+        CompanyId = companyId;
         CreatedAt = DateTime.UtcNow;
         DateUpdated = DateTime.UtcNow;
     }
 
+    /// <summary>
+    /// Actualiza los componentes de costo de la tarifa
+    /// (cuando se reciben datos actualizados de Gov.co)
+    /// 
+    /// Parámetro:
+    ///   newCosts: Nuevos componentes de costo (TariffCosts VO)
+    /// </summary>
     public void UpdateCosts(TariffCosts newCosts)
     {
+        if (newCosts == null)
+            throw new DomainRuleException("Los costos son requeridos");
+
         Costs = newCosts;
         DateUpdated = DateTime.UtcNow;
     }
 
-    public decimal GetTotalCosts() => Costs.CalculateTotalComponents();
+    /// <summary>
+    /// Calcula el costo total de la tarifa sumando todos los componentes
+    /// 
+    /// Utilidad: Para mostrar el total en factura simulada
+    /// </summary>
+    public decimal GetTotalCosts() => Costs.CalculateTotal();
+
+    /// <summary>
+    /// Retorna una representación legible de la tarifa para debugging
+    /// Formato: "Año/Período - Nivel - Operador - CostoTotal"
+    /// Ej: "2025/Enero - Nivel 1 (Propiedad OR) - ENEL Bogotá - 810.46"
+    /// </summary>
+    public override string ToString() =>
+        $"{Period} - Costo Total: {GetTotalCosts()}";
 }

@@ -25,15 +25,14 @@ public class GetLatestTariffQueryHandler(IUnitOfWork unitOfWork)
                 throw new ApplicationCaseException("No hay tarifas disponibles");
 
             return new GetLatestTariffResponse(
-                tariff.Id,
-                tariff.Period.Year,
-                tariff.Period.Month,
-                tariff.Period.Period,
-                tariff.Period.Level,
-                tariff.Period.TariffOperator,
-                tariff.GetTotalCosts(),
-                tariff.CreatedAt
-            );
+            tariff.Id,
+            tariff.Period.Year,
+            tariff.Period.Period,
+            tariff.Period.Level,
+            tariff.Period.TariffOperator,
+            tariff.CompanyId,
+            tariff.GetTotalCosts(),
+            tariff.CreatedAt);
         }
         catch (ApplicationCaseException)
         {

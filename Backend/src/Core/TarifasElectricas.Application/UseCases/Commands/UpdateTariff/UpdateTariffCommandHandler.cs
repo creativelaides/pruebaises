@@ -50,13 +50,12 @@ public class UpdateTariffCommandHandler(IUnitOfWork unitOfWork)
             return new UpdateTariffResponse(
                 tariff.Id,
                 tariff.Period.Year,
-                tariff.Period.Month,
                 tariff.Period.Period,
                 tariff.Period.Level,
                 tariff.Period.TariffOperator,
+                tariff.CompanyId,
                 tariff.GetTotalCosts(),
-                tariff.DateUpdated
-            );
+                tariff.DateUpdated);
         }
         catch (DomainRuleException ex)
         {

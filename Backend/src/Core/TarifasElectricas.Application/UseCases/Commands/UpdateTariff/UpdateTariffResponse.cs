@@ -7,9 +7,9 @@ namespace TarifasElectricas.Application.UseCases.Commands.UpdateTariff;
 public record UpdateTariffResponse(
     Guid Id,
     int Year,
-    int Month,
     string? Period,
     string? Level,
-    string? Operator,
+    string? TariffOperator,
+    Guid CompanyId,
     decimal TotalCosts,
     DateTime UpdatedAt);

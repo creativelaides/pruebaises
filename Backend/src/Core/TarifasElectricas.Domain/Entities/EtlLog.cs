@@ -4,6 +4,17 @@ using TarifasElectricas.Domain.Enums;
 
 namespace TarifasElectricas.Domain.Entities;
 
+/// <summary>
+/// Entidad que registra la ejecución del proceso ETL
+/// (Extract, Transform, Load de datos de Gov.co)
+/// 
+/// Responsabilidad: Auditar cada ejecución del ETL
+/// - Cuándo se ejecutó
+/// - Qué estado tuvo (Running, Success, Failed, Cancelled)
+/// - Cuántos registros se procesaron
+/// - Cuánto tiempo tomó
+/// - Qué errores ocurrieron (si los hay)
+/// </summary>
 public class EtlLog : Root
 {
     public DateTime ExecutionDate { get; set; }
@@ -13,12 +24,12 @@ public class EtlLog : Root
     public decimal? DurationSeconds { get; set; }
 
     /// <summary>
-    /// Constructor privado para EF Core
+    /// Constructor privado para EF Core.
     /// </summary>
     private EtlLog() { }
 
     /// <summary>
-    /// Constructor público para crear un nuevo log de ETL
+    /// Constructor público para crear un nuevo log de ETL.
     /// </summary>
     public EtlLog(
     DateTime executionDate,
@@ -37,17 +48,17 @@ public class EtlLog : Root
     }
 
     /// <summary>
-    /// Indica si el proceso fue exitoso
+    /// Indica si el proceso fue exitoso.
     /// </summary>
     public bool IsSuccess => State == EtlState.Success;
 
     /// <summary>
-    /// Indica si el proceso finalizó (exitoso, fallido o cancelado)
+    /// Indica si el proceso finalizó (exitoso, fallido o cancelado).
     /// </summary>
     public bool IsCompleted => State != EtlState.Running;
 
     /// <summary>
-    /// Indica si el proceso tuvo algún problema (falló o fue cancelado)
+    /// Indica si el proceso tuvo algún problema (falló o fue cancelado).
     /// </summary>
     public bool HasIssues => State == EtlState.Failed || State == EtlState.Cancelled;
 

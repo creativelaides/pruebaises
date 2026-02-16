@@ -25,15 +25,14 @@ public class GetTariffByIdQueryHandler(IUnitOfWork unitOfWork)
                 throw new ApplicationCaseException($"Tarifa con ID {query.Id} no encontrada");
 
             return new GetTariffByIdResponse(
-                tariff.Id,
-                tariff.Period.Year,
-                tariff.Period.Month,
-                tariff.Period.Period,
-                tariff.Period.Level,
-                tariff.Period.TariffOperator,
-                tariff.GetTotalCosts(),
-                tariff.CreatedAt
-            );
+            tariff.Id,
+            tariff.Period.Year,
+            tariff.Period.Period,
+            tariff.Period.Level,
+            tariff.Period.TariffOperator,
+            tariff.CompanyId,
+            tariff.GetTotalCosts(),
+            tariff.CreatedAt);
         }
         catch (ApplicationCaseException)
         {

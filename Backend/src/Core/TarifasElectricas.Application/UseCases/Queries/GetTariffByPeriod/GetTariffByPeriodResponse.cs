@@ -7,9 +7,9 @@ namespace TarifasElectricas.Application.UseCases.Queries.GetTariffByPeriod;
 public record GetTariffByPeriodResponse(
     Guid Id,
     int Year,
-    int Month,
     string? Period,
     string? Level,
-    string? Operator,
+    string? TariffOperator,
+    Guid CompanyId,
     decimal TotalCosts,
     DateTime CreatedAt);

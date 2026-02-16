@@ -1,15 +1,24 @@
+namespace TarifasElectricas.Application.UseCases.Commands.CreateTariff;
+
 using System;
+using System.Threading.Tasks;
 using TarifasElectricas.Application.Contracts.Persistence;
 using TarifasElectricas.Application.Exceptions;
 using TarifasElectricas.Domain.Entities;
 using TarifasElectricas.Domain.Exceptions;
 using TarifasElectricas.Domain.ValueObjects;
 
-namespace TarifasElectricas.Application.UseCases.Commands.CreateTariff;
-
 /// <summary>
-/// Handler para CreateTariffCommand.
-/// WolverineFx lo descubre automáticamente por el método Handle/HandleAsync.
+/// Handler para CreateTariffCommand
+/// Descubierto automáticamente por WolverineFx
+/// 
+/// Responsabilidades:
+/// 1. Validar que la Company existe
+/// 2. Verificar que no existe tarifa duplicada
+/// 3. Crear TariffPeriod con datos del comando
+/// 4. Crear TariffCosts con 9 componentes
+/// 5. Crear ElectricityTariff con CompanyId
+/// 6. Persistir en BD
 /// </summary>
 public class CreateTariffCommandHandler
 {
@@ -20,32 +29,35 @@ public class CreateTariffCommandHandler
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    /// <summary>
-    /// WolverineFx invoca este método automáticamente.
-    /// </summary>
     public async Task<CreateTariffResponse> Handle(CreateTariffCommand command)
     {
-        ArgumentNullException.ThrowIfNull(command);
+        if (command == null)
+            throw new ArgumentNullException(nameof(command));
 
         try
         {
-            // Verificar si ya existe una tarifa para ese período
-            var existingTariff = await _unitOfWork.ElectricityTariffs
-                .GetByPeriodAsync(command.Year, command.Month);
-
-            if (existingTariff != null)
+            // ✅ NUEVO: Validar que Company existe
+            var company = await _unitOfWork.Companies.GetByIdAsync(command.CompanyId);
+            if (company == null)
                 throw new ApplicationCaseException(
-                    $"Ya existe una tarifa para el período {command.Year}-{command.Month:D2}");
+                    $"Empresa con ID {command.CompanyId} no encontrada");
 
-            // Crear Value Objects (las validaciones se hacen aquí en el Domain)
+            // Verificar duplicado por período
+            var existing = await _unitOfWork.ElectricityTariffs
+                .GetByPeriodAsync(command.Year, command.Period ?? "Unknown");
+
+            if (existing != null)
+                throw new ApplicationCaseException(
+                    $"Ya existe una tarifa para el período {command.Year}-{command.Period}");
+
+            // ✅ ACTUALIZAR: Crear TariffPeriod SIN Month, con TariffOperator
             var period = new TariffPeriod(
                 command.Year,
-                command.Month,
-                command.Period,
-                command.Level,
-                command.Operator
-            );
+                command.Period ?? "Unknown",
+                command.Level ?? "Unknown",
+                command.TariffOperator ?? "Unknown");
 
+            // Crear TariffCosts
             var costs = new TariffCosts(
                 command.TotalCu,
                 command.PurchaseCostG,
@@ -55,11 +67,10 @@ public class CreateTariffCommandHandler
                 command.CostLossesPr,
                 command.RestrictionsRm,
                 command.Cot,
-                command.CfmjGfact
-            );
+                command.CfmjGfact);
 
-            // Crear la entidad
-            var tariff = new ElectricityTariff(period, costs);
+            // ✅ ACTUALIZAR: Crear ElectricityTariff CON CompanyId
+            var tariff = new ElectricityTariff(period, costs, command.CompanyId);
 
             // Persistir
             await _unitOfWork.ElectricityTariffs.AddAsync(tariff);
@@ -69,17 +80,17 @@ public class CreateTariffCommandHandler
             return new CreateTariffResponse(
                 tariff.Id,
                 tariff.Period.Year,
-                tariff.Period.Month,
                 tariff.Period.Period,
                 tariff.Period.Level,
                 tariff.Period.TariffOperator,
+                command.CompanyId,
                 tariff.GetTotalCosts(),
-                tariff.CreatedAt
-            );
+                tariff.CreatedAt);
         }
         catch (DomainRuleException ex)
         {
-            throw new ApplicationCaseException($"Error de validación en el dominio: {ex.Message}", ex);
+            throw new ApplicationCaseException(
+                $"Error de validación en el dominio: {ex.Message}", ex);
         }
         catch (ApplicationCaseException)
         {
@@ -87,8 +98,8 @@ public class CreateTariffCommandHandler
         }
         catch (Exception ex)
         {
-            throw new ApplicationCaseException($"Error al crear la tarifa: {ex.Message}", ex);
+            throw new ApplicationCaseException(
+                $"Error al crear la tarifa: {ex.Message}", ex);
         }
     }
 }
-

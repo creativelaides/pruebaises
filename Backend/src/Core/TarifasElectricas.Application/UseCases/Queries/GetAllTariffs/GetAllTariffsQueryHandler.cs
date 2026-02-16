@@ -21,17 +21,16 @@ public class GetAllTariffsQueryHandler(IUnitOfWork unitOfWork)
             var tariffs = await _unitOfWork.ElectricityTariffs.GetAllAsync();
 
             var tariffItems = tariffs
-                .Select(t => new GetAllTariffsResponse.TariffItem(
-                    t.Id,
-                    t.Period.Year,
-                    t.Period.Month,
-                    t.Period.Period,
-                    t.Period.Level,
-                    t.Period.TariffOperator,
-                    t.GetTotalCosts(),
-                    t.CreatedAt
-                ))
-                .ToList();
+            .Select(t => new GetAllTariffsResponse.TariffItem(
+                t.Id,
+                t.Period.Year,
+                t.Period.Period,
+                t.Period.Level,
+                t.Period.TariffOperator,
+                t.CompanyId,
+                t.GetTotalCosts(),
+                t.CreatedAt))
+            .ToList();
 
             return new GetAllTariffsResponse(tariffItems);
         }

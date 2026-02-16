@@ -12,10 +12,10 @@ public record GetAllTariffsResponse(
     public record TariffItem(
         Guid Id,
         int Year,
-        int Month,
         string? Period,
         string? Level,
-        string? Operator,
+        string? TariffOperator,
+        Guid CompanyId,
         decimal TotalCosts,
         DateTime CreatedAt);
 }

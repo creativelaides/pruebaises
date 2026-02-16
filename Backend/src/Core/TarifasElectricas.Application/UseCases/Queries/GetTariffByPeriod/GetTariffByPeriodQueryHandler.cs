@@ -8,6 +8,11 @@ namespace TarifasElectricas.Application.UseCases.Queries.GetTariffByPeriod;
 /// <summary>
 /// Handler para GetTariffByPeriodQuery.
 /// WolverineFx lo descubre automáticamente.
+/// 
+/// Responsabilidad:
+/// - Obtener tarifa por año y período
+/// - Mapear a response
+/// - Manejo de errores
 /// </summary>
 public class GetTariffByPeriodQueryHandler(IUnitOfWork unitOfWork)
 {
@@ -19,23 +24,23 @@ public class GetTariffByPeriodQueryHandler(IUnitOfWork unitOfWork)
 
         try
         {
+            // ✅ CORREGIDO: Pasar Period (string), no Month (int)
             var tariff = await _unitOfWork.ElectricityTariffs
-                .GetByPeriodAsync(query.Year, query.Month);
+                .GetByPeriodAsync(query.Year, query.Period);
 
             if (tariff == null)
                 throw new ApplicationCaseException(
-                    $"Tarifa no encontrada para el período {query.Year}-{query.Month:D2}");
+                    $"Tarifa no encontrada para el período {query.Year}-{query.Period}");
 
             return new GetTariffByPeriodResponse(
                 tariff.Id,
                 tariff.Period.Year,
-                tariff.Period.Month,
                 tariff.Period.Period,
                 tariff.Period.Level,
                 tariff.Period.TariffOperator,
+                tariff.CompanyId,
                 tariff.GetTotalCosts(),
-                tariff.CreatedAt
-            );
+                tariff.CreatedAt);
         }
         catch (ApplicationCaseException)
         {

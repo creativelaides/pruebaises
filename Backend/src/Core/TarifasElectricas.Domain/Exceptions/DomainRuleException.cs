@@ -3,7 +3,8 @@ using System;
 namespace TarifasElectricas.Domain.Exceptions;
 
 /// <summary>
-/// Excepción lanzada cuando se viola una regla de negocio del dominio
+/// Excepción que representa la violación de una regla de negocio en el dominio.
+/// Se lanza cuando la entrada no cumple con las validaciones de negocio.
 /// </summary>
 public class DomainRuleException : Exception
 {

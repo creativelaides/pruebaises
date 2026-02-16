@@ -1,11 +1,18 @@
-using System;
 using FluentValidation;
 
 namespace TarifasElectricas.Application.UseCases.Commands.CreateTariff;
 
 /// <summary>
-/// Validador para CreateTariffCommand usando FluentValidation.
-/// WolverineFx lo invoca automáticamente.
+/// Validador para CreateTariffCommand
+/// Ejecutado automáticamente por WolverineFx antes del handler
+/// 
+/// Validaciones:
+/// - Año: rango válido
+/// - Período: no vacío
+/// - Nivel: no vacío
+/// - Operador: no vacío
+/// - CompanyId: no vacío (NUEVO)
+/// - Costos: no negativos
 /// </summary>
 public class CreateTariffCommandValidator : AbstractValidator<CreateTariffCommand>
 {
@@ -13,60 +20,71 @@ public class CreateTariffCommandValidator : AbstractValidator<CreateTariffComman
     {
         RuleFor(x => x.Year)
             .GreaterThanOrEqualTo(1900)
+            .WithMessage("El año debe ser mayor o igual a 1900")
             .LessThanOrEqualTo(DateTime.UtcNow.Year + 1)
-            .WithMessage("El año debe estar entre 1900 y el año actual + 1");
-
-        RuleFor(x => x.Month)
-            .GreaterThanOrEqualTo(1)
-            .LessThanOrEqualTo(12)
-            .WithMessage("El mes debe estar entre 1 y 12");
+            .WithMessage($"El año no puede ser mayor a {DateTime.UtcNow.Year + 1}");
 
         RuleFor(x => x.Period)
             .NotEmpty()
-            .WithMessage("El período de tarifa es requerido");
+            .WithMessage("El período es requerido");
 
         RuleFor(x => x.Level)
             .NotEmpty()
-            .WithMessage("El nivel de tensión es requerido");
+            .WithMessage("El nivel es requerido");
 
-        RuleFor(x => x.Operator)
+        RuleFor(x => x.TariffOperator)
             .NotEmpty()
-            .WithMessage("El operador distribuidora es requerido");
+            .WithMessage("El operador es requerido");
 
+        // ✅ NUEVO: Validar CompanyId
+        RuleFor(x => x.CompanyId)
+            .NotEmpty()
+            .WithMessage("El ID de la empresa es requerido");
+
+        // Validaciones de costos
         RuleFor(x => x.TotalCu)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("TotalCu no puede ser negativo");
+            .WithMessage("TotalCu no puede ser negativo")
+            .When(x => x.TotalCu.HasValue);
 
         RuleFor(x => x.PurchaseCostG)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("PurchaseCostG no puede ser negativo");
+            .WithMessage("PurchaseCostG no puede ser negativo")
+            .When(x => x.PurchaseCostG.HasValue);
 
         RuleFor(x => x.ChargeTransportStnTm)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("ChargeTransportStnTm no puede ser negativo");
+            .WithMessage("ChargeTransportStnTm no puede ser negativo")
+            .When(x => x.ChargeTransportStnTm.HasValue);
 
         RuleFor(x => x.ChargeTransportSdlDm)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("ChargeTransportSdlDm no puede ser negativo");
+            .WithMessage("ChargeTransportSdlDm no puede ser negativo")
+            .When(x => x.ChargeTransportSdlDm.HasValue);
 
         RuleFor(x => x.MarketingMargin)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("MarketingMargin no puede ser negativo");
+            .WithMessage("MarketingMargin no puede ser negativo")
+            .When(x => x.MarketingMargin.HasValue);
 
         RuleFor(x => x.CostLossesPr)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("CostLossesPr no puede ser negativo");
+            .WithMessage("CostLossesPr no puede ser negativo")
+            .When(x => x.CostLossesPr.HasValue);
 
         RuleFor(x => x.RestrictionsRm)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("RestrictionsRm no puede ser negativo");
+            .WithMessage("RestrictionsRm no puede ser negativo")
+            .When(x => x.RestrictionsRm.HasValue);
 
         RuleFor(x => x.Cot)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("Cot no puede ser negativo");
+            .WithMessage("Cot no puede ser negativo")
+            .When(x => x.Cot.HasValue);
 
         RuleFor(x => x.CfmjGfact)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("CfmjGfact no puede ser negativo");
+            .WithMessage("CfmjGfact no puede ser negativo")
+            .When(x => x.CfmjGfact.HasValue);
     }
 }
