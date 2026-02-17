@@ -1,5 +1,5 @@
 using System;
-using TarifasElectricas.Domain.Entities.EntityRoot;
+using TarifasElectricas.Domain.Entities.Root;
 using TarifasElectricas.Domain.Exceptions;
 
 namespace TarifasElectricas.Domain.Entities;
@@ -13,7 +13,7 @@ namespace TarifasElectricas.Domain.Entities;
 /// Responsabilidad: Identificar de forma única el operador distribuidor
 /// de energía en el mercado regulado.
 /// </summary>
-public class Company : Root
+public class Company : AuditableEntity
 {
     /// <summary>
     /// Código o nombre único del operador de red (exactamente como viene de Gov.co)

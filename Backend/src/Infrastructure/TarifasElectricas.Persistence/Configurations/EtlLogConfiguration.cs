@@ -16,5 +16,7 @@ public class EtlLogConfiguration : IEntityTypeConfiguration<EtlLog>
             .HasConversion<int>()
             .IsRequired();
         builder.Property(x => x.Message).HasMaxLength(1000);
+        builder.Property(x => x.CreatedBy).HasMaxLength(200);
+        builder.Property(x => x.UpdatedBy).HasMaxLength(200);
     }
 }

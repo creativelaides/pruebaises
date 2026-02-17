@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using TarifasElectricas.Application.Contracts.Repositories.Generic;
-using TarifasElectricas.Domain.Entities.EntityRoot;
+using TarifasElectricas.Domain.Entities.Root;
 
 namespace TarifasElectricas.Persistence.Repositories.Generic;
 
-public class Repository<T> : IRepository<T> where T : Root
+public class Repository<T> : IRepository<T> where T : RootEntity
 {
     protected readonly TariffDbContext Context;
     protected readonly DbSet<T> Set;

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TarifasElectricas.Api.DTOs.Tariffs.CreateTariff;
 using TarifasElectricas.Api.DTOs.Tariffs.DeleteTariff;
@@ -14,11 +15,13 @@ using TarifasElectricas.Application.UseCases.Queries.GetAllTariffs;
 using TarifasElectricas.Application.UseCases.Queries.GetLatestTariff;
 using TarifasElectricas.Application.UseCases.Queries.GetTariffById;
 using TarifasElectricas.Application.UseCases.Queries.GetTariffByPeriod;
+using TarifasElectricas.Identity.Models;
 
 namespace TarifasElectricas.Api.Controllers;
 
 [Tags("Tariffs")]
 [ApiController]
+[Authorize(Policy = AppPolicies.CanQueryTariffs)]
 [Route("api/tariffs")]
 public class TariffsController(
     CreateTariffCommandHandler createHandler,
@@ -49,6 +52,7 @@ public class TariffsController(
     /// Crea una nueva tarifa eléctrica.
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = AppRoles.Admin)]
     [Consumes("application/json")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(CreateTariffResponseDto), StatusCodes.Status201Created)]
@@ -96,6 +100,7 @@ public class TariffsController(
     /// Actualiza los costos de una tarifa existente.
     /// </summary>
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = AppRoles.Admin)]
     [Consumes("application/json")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(UpdateTariffResponseDto), StatusCodes.Status200OK)]
@@ -139,6 +144,7 @@ public class TariffsController(
     /// Elimina una tarifa por ID.
     /// </summary>
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = AppRoles.Admin)]
     [Produces("application/json")]
     [ProducesResponseType(typeof(DeleteTariffResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
