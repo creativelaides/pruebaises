@@ -1,6 +1,6 @@
 <div align="center">
 <h1>Prueba ISES - Tarifas Electricas 2026</h1>
-<img margin=20px src="./Skills/Visuals/project-top-image.svg" alt="ISES top image Dotnet Angular Postgres Project" align="center" height="150px">
+<img margin=20px src="./skills/Visuals/project-top-image.svg" alt="ISES top image Dotnet Angular Postgres Project" align="center" height="150px">
 <br><br>
 </div>
 
@@ -21,7 +21,7 @@ La solucion implementa un flujo completo de negocio:
 - `Frontend/`: aplicacion Angular 21.
 - `Database/`: stack Docker para PostgreSQL + pgAdmin.
 - `Summaries/`: resumenes tecnicos de capas core.
-- `Skills/`: enunciado, diagramas y recursos visuales de apoyo.
+- `skills/`: enunciado, diagramas y recursos visuales de apoyo.
 
 ## Stack tecnologico
 - **Backend**: .NET SDK `10.0.103`, ASP.NET Core, Identity, FluentValidation, Mapster.
@@ -73,4 +73,4 @@ npm start
 
 ## Referencias adicionales
 - `AGENT.md`
-- `Skills/PRUEBA_TECNICA_FULLSTACK.md`
+- `skills/PRUEBA_TECNICA_FULLSTACK.md`
