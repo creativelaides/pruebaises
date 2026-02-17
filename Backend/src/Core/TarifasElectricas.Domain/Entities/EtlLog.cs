@@ -1,5 +1,5 @@
 using System;
-using TarifasElectricas.Domain.Entities.EntityRoot;
+using TarifasElectricas.Domain.Entities.Root;
 using TarifasElectricas.Domain.Enums;
 
 namespace TarifasElectricas.Domain.Entities;
@@ -15,7 +15,7 @@ namespace TarifasElectricas.Domain.Entities;
 /// - Cuánto tiempo tomó
 /// - Qué errores ocurrieron (si los hay)
 /// </summary>
-public class EtlLog : Root
+public class EtlLog : AuditableEntity
 {
     public DateTime ExecutionDate { get; private set; }
     public EtlState State { get; private set; }

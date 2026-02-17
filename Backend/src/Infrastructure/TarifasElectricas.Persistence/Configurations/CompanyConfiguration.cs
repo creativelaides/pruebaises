@@ -14,6 +14,8 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
         builder.Property(x => x.Code).IsRequired().HasMaxLength(300);
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.DateUpdated).IsRequired();
+        builder.Property(x => x.CreatedBy).HasMaxLength(200);
+        builder.Property(x => x.UpdatedBy).HasMaxLength(200);
         builder.HasIndex(x => x.Code).IsUnique();
     }
 }

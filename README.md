@@ -1,7 +1,7 @@
 <div align="center">
 <h1>Prueba ISES - Tarifas Electricas 2026</h1>
 <img margin=20px src ="./Skills/Visuals/project-top-image.svg" alt="ISESTopImageDotnetAngularPostgresProject" align="center" height="150px" >
-<br>
+<br><br>
 </div>
 
 Proyecto full-stack para monitorear y visualizar tarifas de energia electrica en Colombia usando datos publicos de `datos.gov.co`. El backend esta implementado en .NET con Clean Architecture y CQRS. El frontend aun no esta implementado en este repositorio (solo existe la carpeta base).

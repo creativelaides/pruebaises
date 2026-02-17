@@ -1,12 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TarifasElectricas.Api.DTOs.Invoices.SimulateInvoice;
 using TarifasElectricas.Application.Exceptions;
 using TarifasElectricas.Application.UseCases.Queries.SimulateInvoice;
+using TarifasElectricas.Identity.Models;
 
 namespace TarifasElectricas.Api.Controllers;
 
 [Tags("Invoices")]
 [ApiController]
+[Authorize(Policy = AppPolicies.CanQueryTariffs)]
 [Route("api/invoices")]
 public class InvoicesController(SimulateInvoiceQueryHandler simulateHandler) : ControllerBase
 {

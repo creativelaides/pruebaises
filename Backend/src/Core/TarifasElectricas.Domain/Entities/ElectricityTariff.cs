@@ -1,7 +1,7 @@
 using System;
 namespace TarifasElectricas.Domain.Entities;
 
-using TarifasElectricas.Domain.Entities.EntityRoot;
+using TarifasElectricas.Domain.Entities.Root;
 using TarifasElectricas.Domain.Exceptions;
 using TarifasElectricas.Domain.ValueObjects;
 
@@ -22,7 +22,7 @@ using TarifasElectricas.Domain.ValueObjects;
 /// 2. Simular facturas de consumo eléctrico
 /// 3. Proporcionar información educativa sobre componentes de costo
 /// </summary>
-public class ElectricityTariff : Root
+public class ElectricityTariff : AuditableEntity
 {
     /// <summary>
     /// Período temporal y contextual de la tarifa

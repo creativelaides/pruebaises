@@ -1,11 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TarifasElectricas.Api.DTOs.Etl.ExecuteEtl;
 using TarifasElectricas.Application.Contracts.Services;
+using TarifasElectricas.Identity.Models;
 
 namespace TarifasElectricas.Api.Controllers;
 
 [Tags("ETL")]
 [ApiController]
+[Authorize(Policy = AppPolicies.CanRunEtl)]
 [Route("api/etl")]
 public class EtlController(IEtlService etlService) : ControllerBase
 {

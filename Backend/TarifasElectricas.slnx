@@ -8,6 +8,7 @@
     <Project Path="src/Core/TarifasElectricas.Domain/TarifasElectricas.Domain.csproj" />
   </Folder>
   <Folder Name="/src/Infrastructure/">
+    <Project Path="src/Infrastructure/TarifasElectricas.Identity/TarifasElectricas.Identity.csproj" />
     <Project Path="src/Infrastructure/TarifasElectricas.Infrastructure/TarifasElectricas.Infrastructure.csproj" />
     <Project Path="src/Infrastructure/TarifasElectricas.Persistence/TarifasElectricas.Persistence.csproj" />
   </Folder>
