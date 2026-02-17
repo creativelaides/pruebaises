@@ -5,7 +5,7 @@ sequenceDiagram
     participant Client as 🔌 SocrataClient
     participant Socrata as 🏛️ datos.gov.co
     participant UoW as 🗄️ UnitOfWorkEFCore
-    participant DB as 🐘 PostgreSQL
+    participant DB as 🐘 PostgreSQL (Docker local)
 
     Admin->>+API: POST /api/etl/run (Bearer Token)
     API->>+Service: RunAsync()

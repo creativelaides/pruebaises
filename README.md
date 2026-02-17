@@ -1,46 +1,76 @@
 <div align="center">
 <h1>Prueba ISES - Tarifas Electricas 2026</h1>
-<img margin=20px src ="./Skills/Visuals/project-top-image.svg" alt="ISESTopImageDotnetAngularPostgresProject" align="center" height="150px" >
+<img margin=20px src="./Skills/Visuals/project-top-image.svg" alt="ISES top image Dotnet Angular Postgres Project" align="center" height="150px">
 <br><br>
 </div>
 
-Proyecto full-stack para monitorear y visualizar tarifas de energia electrica en Colombia usando datos publicos de `datos.gov.co`. El backend esta implementado en .NET con Clean Architecture, CQRS e Identity. El frontend aun no esta implementado en este repositorio (solo existe la carpeta base); mañana se trabajara con Angular 20.
+Proyecto full-stack para monitorear, consultar y simular tarifas de energia electrica en Colombia usando datos oficiales de `datos.gov.co`.
 
-Para mas detalle tecnico y referencias de arquitectura, ver `AGENT.md` y los summaries en `Summaries/`.
+## Descripcion detallada
+La solucion implementa un flujo completo de negocio:
 
-**Estructura**
-- `Backend/`: solucion .NET 10 (Domain, Application, Persistence, Tests)
-- `Summaries/`: documentacion actualizada de capas Domain y Application
-- `Frontend/`: placeholder (sin codigo aun)
-- `Skills/`: diagramas y recursos visuales
+- **ETL de tarifas**: consume la fuente oficial, transforma datos y registra ejecuciones.
+- **API REST**: expone operaciones para tarifas, simulacion de factura, cuenta de usuario y ETL.
+- **Autenticacion y autorizacion**: usa ASP.NET Core Identity con roles (`Admin`, `Client`) y politicas.
+- **Interfaz web**: frontend Angular con modulos funcionales (`auth`, `tariffs`, `invoices`, `etl`, `admin`).
+- **Persistencia**: PostgreSQL para datos del dominio y datos de identidad.
+- **Notificaciones**: soporte de envio de correo via SMTP.
 
-**Tecnologias**
-- .NET 10 (SDK 10.0.103)
-- xUnit + NSubstitute
-- FluentValidation
-- Mapster
-- WolverineFx
-- PostgreSQL (planificado)
-- Angular 20 (planificado)
+## Arquitectura del repositorio
+- `Backend/`: solucion .NET 10 con Clean Architecture (`Domain`, `Application`, `Infrastructure`, `API`, `Test`).
+- `Frontend/`: aplicacion Angular 21.
+- `Database/`: stack Docker para PostgreSQL + pgAdmin.
+- `Summaries/`: resumenes tecnicos de capas core.
+- `Skills/`: enunciado, diagramas y recursos visuales de apoyo.
 
-**Quick Start (Backend)**
+## Stack tecnologico
+- **Backend**: .NET SDK `10.0.103`, ASP.NET Core, Identity, FluentValidation, Mapster.
+- **Frontend**: Angular `21`, TailwindCSS `4`, DaisyUI `5`.
+- **Datos**: PostgreSQL `18.2-alpine`, pgAdmin.
+- **Testing**: xUnit + NSubstitute (backend), Vitest (frontend).
+
+## Endpoints funcionales principales
+- `api/tariffs`: CRUD, consulta por periodo y consulta de ultima tarifa.
+- `api/invoices/simulate`: simulacion de factura por consumo.
+- `api/etl/run`: ejecucion de ETL.
+- `api/email/test`: prueba de envio de correo.
+- `api/account/*`: perfil y cambio de contrasena.
+- Endpoints de Identity mapeados con `MapIdentityApi<AppUser>()`.
+
+## Puesta en marcha
+### 1) Base de datos (Docker)
+```bash
+cd Database
+copy env.template .env
+docker compose --env-file .env up -d
+```
+
+### 2) Backend
 ```bash
 cd Backend
 dotnet restore
 dotnet build
 dotnet test
+dotnet run --project src/API/TarifasElectricas.Api
 ```
 
-**Base de datos (Docker)**
+### 3) Frontend
 ```bash
-cd Database
-docker compose --env-file .env up -d
+cd Frontend
+npm install
+npm start
 ```
 
-**Seed inicial (Identity)**
-- Se crean roles `Admin` y `Client`, además de usuarios base usando `appsettings.json` o `user-secrets`.
-- Ver sección `SeedUsers` en `Backend/src/API/TarifasElectricas.Api/appsettings.example.json`.
+## Configuracion importante
+- Revisar `Backend/src/API/TarifasElectricas.Api/appsettings.example.json`.
+- Configurar `ConnectionStrings:DefaultConnection`.
+- Configurar credenciales SMTP en `Email`.
+- Cambiar passwords de `SeedUsers` antes de ejecutar en cualquier entorno real.
 
-**Docs clave**
-- `Summaries/APPLICATION_STRUCTURE_SUMMARY.md`
-- `Summaries/DOMAIN_STRUCTURE_SUMMARY.md`
+## Documentacion tecnica (Summaries)
+- [Application Structure Summary](./Summaries/APPLICATION_STRUCTURE_SUMMARY.md)
+- [Domain Structure Summary](./Summaries/DOMAIN_STRUCTURE_SUMMARY.md)
+
+## Referencias adicionales
+- `AGENT.md`
+- `Skills/PRUEBA_TECNICA_FULLSTACK.md`

@@ -9,6 +9,7 @@ using TarifasElectricas.Infrastructure;
 using TarifasElectricas.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
+const string CorsPolicyName = "FrontendDev";
 
 // Add services to the container.
 
@@ -18,6 +19,20 @@ builder.Services.AddControllers(options =>
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(CorsPolicyName, policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:8844",
+                "http://127.0.0.1:8844",
+                "http://localhost:4200",
+                "http://127.0.0.1:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -39,6 +54,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseApiExceptionHandling();
 app.UseHttpsRedirection();
+app.UseCors(CorsPolicyName);
 
 app.UseAuthentication();
 app.UseAuthorization();

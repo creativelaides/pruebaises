@@ -204,12 +204,14 @@ public class TariffsController(
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<GetTariffByPeriodResponseDto>> GetByPeriod(
-        [FromQuery] int year,
-        [FromQuery] string period)
+        [FromQuery] int? year,
+        [FromQuery] string? period,
+        [FromQuery] string? tariffOperator,
+        [FromQuery] string? level)
     {
         try
         {
-            var result = await _getByPeriodHandler.Handle(new GetTariffByPeriodQuery(year, period));
+            var result = await _getByPeriodHandler.Handle(new GetTariffByPeriodQuery(year, period, tariffOperator, level));
             var dto = new GetTariffByPeriodResponseDto(
                 result.Tariffs.Select(t => new GetTariffByPeriodResponseDto.TariffItem(
                     t.Id,

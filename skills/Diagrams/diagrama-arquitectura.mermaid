@@ -3,7 +3,7 @@ config:
   layout: elk
 ---
 flowchart RL
-  subgraph Frontend["🎨 FRONTEND - Angular 20 (planificado)"]
+  subgraph Frontend["🎨 FRONTEND - Angular 21"]
     direction TB
     Features["📦 Features<br>- tariffs<br>- invoices<br>- admin/etl"]
     Core["🔧 Core<br>- api-clients<br>- guards"]
@@ -21,10 +21,14 @@ flowchart RL
     ExternalServices["🌐 External Services<br>- SocrataClient (ETL)<br>- SmtpEmailService"]
   end
 
-  subgraph External["🌍 EXTERNOS"]
+  subgraph External["🌍 SERVICIOS EXTERNOS"]
     Socrata["🏛️ datos.gov.co (Socrata API)"]
-    PostgreSQL["🐘 PostgreSQL"]
     Smtp["✉️ SMTP (Gmail)"]
+  end
+
+  subgraph LocalInfra["🐳 INFRAESTRUCTURA LOCAL (DOCKER)"]
+    PostgreSQL["🐘 PostgreSQL (local)"]
+    PgAdmin["🧰 pgAdmin (local)"]
   end
 
   Frontend -- HTTP REST --> WebApi
@@ -38,6 +42,7 @@ flowchart RL
   Identity -- EF Core --> PostgreSQL
   ExternalServices -- HTTP GET --> Socrata
   ExternalServices -- SMTP --> Smtp
+  PgAdmin -. admin .-> PostgreSQL
 
   style Frontend fill:#E3F2FD,stroke:#1976D2,stroke-width:3px
   style Features fill:#BBDEFB,stroke:#1976D2,stroke-width:2px
@@ -51,6 +56,8 @@ flowchart RL
   style Backend fill:#F3E5F5,stroke:#7B1FA2,stroke-width:3px
 
   style Socrata fill:#FFCC80,stroke:#F57C00,stroke-width:2px
-  style PostgreSQL fill:#FFE0B2,stroke:#F57C00,stroke-width:2px
+  style PostgreSQL fill:#C8E6C9,stroke:#388E3C,stroke-width:2px
+  style PgAdmin fill:#DCEDC8,stroke:#558B2F,stroke-width:2px
   style Smtp fill:#FFE0B2,stroke:#F57C00,stroke-width:2px
   style External fill:#FFF3E0,stroke:#F57C00,stroke-width:3px
+  style LocalInfra fill:#E8F5E9,stroke:#2E7D32,stroke-width:3px

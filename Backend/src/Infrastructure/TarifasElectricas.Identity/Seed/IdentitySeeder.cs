@@ -74,6 +74,10 @@ public static class IdentitySeeder
         var username = section["Username"];
         var email = section["Email"];
         var password = section["Password"];
+        var firstName = section["FirstName"];
+        var lastName = section["LastName"];
+        var jobTitle = section["JobTitle"];
+        var area = section["Area"];
 
         if (string.IsNullOrWhiteSpace(username) ||
             string.IsNullOrWhiteSpace(email) ||
@@ -81,18 +85,47 @@ public static class IdentitySeeder
             return;
 
         var user = await userManager.FindByNameAsync(username);
+        user ??= await userManager.FindByEmailAsync(email);
+
         if (user == null)
         {
             user = new AppUser
             {
                 UserName = username,
-                Email = email
+                Email = email,
+                FirstName = firstName,
+                LastName = lastName,
+                JobTitle = jobTitle,
+                Area = area
             };
 
             var createResult = await userManager.CreateAsync(user, password);
             if (!createResult.Succeeded)
                 throw new InvalidOperationException(
                     $"No se pudo crear el usuario '{username}': {string.Join("; ", createResult.Errors.Select(e => e.Description))}");
+        }
+        else
+        {
+            user.UserName = username;
+            user.Email = email;
+            user.FirstName = firstName;
+            user.LastName = lastName;
+            user.JobTitle = jobTitle;
+            user.Area = area;
+
+            var updateResult = await userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+                throw new InvalidOperationException(
+                    $"No se pudo actualizar el usuario '{username}': {string.Join("; ", updateResult.Errors.Select(e => e.Description))}");
+
+            if (!await userManager.CheckPasswordAsync(user, password))
+            {
+                var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+                var resetResult = await userManager.ResetPasswordAsync(user, resetToken, password);
+                if (!resetResult.Succeeded)
+                    throw new InvalidOperationException(
+                        $"No se pudo actualizar la contraseña del usuario '{username}': {string.Join("; ", resetResult.Errors.Select(e => e.Description))}");
+            }
         }
 
         if (!await userManager.IsInRoleAsync(user, role))

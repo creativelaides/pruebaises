@@ -1,0 +1,12 @@
+@if (isAdmin()) {
+  <app-etl-admin-visual
+    [loading]="loading()"
+    [error]="error()"
+    [result]="result()"
+    (runClicked)="run()">
+  </app-etl-admin-visual>
+} @else {
+  <div class="alert alert-warning">
+    Esta vista didáctica del ETL es solo para administradores.
+  </div>
+}

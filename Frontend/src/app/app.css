@@ -1,0 +1,7 @@
+:host { display: block; }
+
+.min-h-screen {
+  background-image:
+    radial-gradient(circle at 10% 0%, color-mix(in oklab, var(--color-primary) 10%, transparent), transparent 28%),
+    radial-gradient(circle at 100% 100%, color-mix(in oklab, var(--color-secondary) 10%, transparent), transparent 30%);
+}

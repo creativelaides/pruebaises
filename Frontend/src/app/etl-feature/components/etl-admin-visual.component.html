@@ -1,0 +1,77 @@
+<section class="space-y-4">
+  <div class="card bg-base-100 shadow border border-base-300">
+    <div class="card-body">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 class="card-title text-2xl">Panel ETL (Admin)</h1>
+          <p class="text-sm opacity-80">Extrae, transforma y carga tarifas desde datos.gov.co.</p>
+        </div>
+        <button class="btn btn-accent" (click)="runClicked.emit()" [disabled]="loading">
+          @if (loading) { <span class="loading loading-spinner loading-sm"></span> }
+          Ejecutar ETL
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="card bg-base-100 border border-base-300 shadow">
+      <div class="card-body">
+        <p class="text-xs uppercase opacity-70">1. Extract</p>
+        <h3 class="font-bold">Lectura origen</h3>
+        <p class="text-sm">Consulta API de Gov y obtiene lotes de tarifas para proceso.</p>
+      </div>
+    </div>
+    <div class="card bg-base-100 border border-base-300 shadow">
+      <div class="card-body">
+        <p class="text-xs uppercase opacity-70">2. Transform</p>
+        <h3 class="font-bold">Validación y mapeo</h3>
+        <p class="text-sm">Normaliza periodos, operador, nivel y costos a modelo interno.</p>
+      </div>
+    </div>
+    <div class="card bg-base-100 border border-base-300 shadow">
+      <div class="card-body">
+        <p class="text-xs uppercase opacity-70">3. Load</p>
+        <h3 class="font-bold">Persistencia</h3>
+        <p class="text-sm">Guarda nuevas tarifas y actualiza existentes según reglas ETL.</p>
+      </div>
+    </div>
+  </div>
+
+  @if (error) {
+    <div class="alert alert-error">{{ error }}</div>
+  }
+
+  @if (result; as res) {
+    <div class="stats shadow w-full bg-base-100 border border-base-300">
+      <div class="stat">
+        <div class="stat-title">Procesadas</div>
+        <div class="stat-value">{{ res.processedCount }}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Errores</div>
+        <div class="stat-value">{{ res.errorCount }}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Duración</div>
+        <div class="stat-value">{{ res.durationSeconds | number:'1.0-2' }} s</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Tasa de error</div>
+        <div class="stat-value">{{ errorRate | percent:'1.0-2' }}</div>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 border border-base-300 shadow">
+      <div class="card-body">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="badge" [class.badge-success]="res.success" [class.badge-warning]="!res.success">
+            {{ res.success ? 'OK' : 'Con observaciones' }}
+          </span>
+          <span class="text-sm opacity-70">Ejecución: {{ res.executionDate | date:'yyyy-MM-dd HH:mm:ss' }}</span>
+        </div>
+        <p class="text-sm mt-2">{{ res.message }}</p>
+      </div>
+    </div>
+  }
+</section>

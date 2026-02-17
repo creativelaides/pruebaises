@@ -50,13 +50,17 @@ public class CreateTariffCommandHandler
                 throw new ApplicationCaseException(
                     $"Empresa con ID {command.CompanyId} no encontrada");
 
-            // Verificar duplicado por período
+            // Verificar duplicado por combinación de período + nivel + operador + compañía
             var existing = await _tariffs
-                .GetByPeriodAsync(command.Year, command.Period!);
+                .GetByFiltersAsync(
+                    command.Year,
+                    command.Period,
+                    command.TariffOperator,
+                    command.Level);
 
-            if (existing.Any())
+            if (existing.Any(t => t.CompanyId == command.CompanyId))
                 throw new ApplicationCaseException(
-                    $"Ya existe una tarifa para el período {command.Year}-{command.Period}");
+                    $"Ya existe una tarifa para {command.Year}-{command.Period} con ese operador/nivel");
 
             // ✅ ACTUALIZAR: Crear TariffPeriod SIN Month, con TariffOperator
             var period = new TariffPeriod(

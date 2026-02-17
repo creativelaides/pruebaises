@@ -1,0 +1,11 @@
+<div class="toast toast-top toast-end z-50">
+  @for (msg of notifications.messages(); track msg.id) {
+    <div class="alert"
+      [class.alert-success]="msg.type === 'success'"
+      [class.alert-error]="msg.type === 'error'"
+      [class.alert-warning]="msg.type === 'warning'"
+      [class.alert-info]="msg.type === 'info'">
+      <span>{{ msg.text }}</span>
+    </div>
+  }
+</div>

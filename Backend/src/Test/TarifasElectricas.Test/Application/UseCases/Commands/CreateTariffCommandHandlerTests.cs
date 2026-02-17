@@ -54,7 +54,7 @@ public class CreateTariffCommandHandlerTests
         _companies.GetByIdAsync(companyId).Returns(Task.FromResult<Company?>(company));
 
         // Mock: No existe tarifa duplicada
-        _tariffs.GetByPeriodAsync(2025, "Enero")
+        _tariffs.GetByFiltersAsync(2025, "Enero", "ENEL Bogotá - Cundinamarca", "Nivel 1 (Propiedad OR)")
             .Returns(Task.FromResult<IEnumerable<ElectricityTariff>>(Array.Empty<ElectricityTariff>()));
 
         // Act
@@ -136,7 +136,7 @@ public class CreateTariffCommandHandlerTests
         _companies.GetByIdAsync(companyId).Returns(Task.FromResult<Company?>(company));
 
         // Mock: Tarifa duplicada existe
-        _tariffs.GetByPeriodAsync(2025, "Enero")
+        _tariffs.GetByFiltersAsync(2025, "Enero", "ENEL Bogotá - Cundinamarca", "Nivel 1 (Propiedad OR)")
             .Returns(Task.FromResult<IEnumerable<ElectricityTariff>>(new[] { existingTariff }));
 
         // Act & Assert

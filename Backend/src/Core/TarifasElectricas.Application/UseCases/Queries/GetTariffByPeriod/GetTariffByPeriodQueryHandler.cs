@@ -11,7 +11,7 @@ namespace TarifasElectricas.Application.UseCases.Queries.GetTariffByPeriod;
 /// WolverineFx lo descubre automáticamente.
 /// 
 /// Responsabilidad:
-/// - Obtener tarifa por año y período
+/// - Obtener tarifas por filtros opcionales
 /// - Mapear a response
 /// - Manejo de errores
 /// </summary>
@@ -26,12 +26,16 @@ public class GetTariffByPeriodQueryHandler(IElectricityTariffRepository tariffs)
         return await HandlerGuard.ExecuteAsync(async () =>
         {
             var tariffs = (await _tariffs
-                .GetByPeriodAsync(query.Year, query.Period))
+                .GetByFiltersAsync(
+                    query.Year,
+                    query.Period,
+                    query.TariffOperator,
+                    query.Level))
                 .ToList();
 
             if (tariffs.Count == 0)
                 throw new ApplicationCaseException(
-                    $"No hay tarifas para el período {query.Year}-{query.Period}");
+                    "No hay tarifas con los filtros solicitados");
 
             return new GetTariffByPeriodResponse(
                 tariffs.Select(t => new GetTariffByPeriodResponse.TariffItem(

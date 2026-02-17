@@ -101,6 +101,7 @@ direction RL
     class InvoicesController
     class EtlController
     class EmailController
+    class AccountController
 
     RootEntity <|-- AuditableEntity
     AuditableEntity <|-- Company
@@ -140,6 +141,7 @@ direction RL
     InvoicesController --> SimulateInvoiceQueryHandler
     EtlController --> SocrataEtlService
     EmailController --> IEmailService
+    AccountController --> AppUser
 
     style RootEntity fill:#e3f2fd
     style AuditableEntity fill:#e3f2fd
@@ -164,3 +166,4 @@ direction RL
     style InvoicesController fill:#fce4ec
     style EtlController fill:#fce4ec
     style EmailController fill:#fce4ec
+    style AccountController fill:#fce4ec

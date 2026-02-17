@@ -37,9 +37,9 @@ public class GetTariffByPeriodQueryHandlerTests
             new TariffCosts(691.89m, 372.46m, 56.03m, 168.8m, 66.56m, 24.32m, 3.71m, 41.7m, 9.813m),
             companyId);
 
-        var query = new GetTariffByPeriodQuery(2025, "Enero");
+        var query = new GetTariffByPeriodQuery(2025, "Enero", null, null);
 
-        _tariffs.GetByPeriodAsync(2025, "Enero")
+        _tariffs.GetByFiltersAsync(2025, "Enero", null, null)
             .Returns(Task.FromResult<IEnumerable<ElectricityTariff>>(new[] { tariff1, tariff2 }));
 
         // Act
@@ -60,9 +60,9 @@ public class GetTariffByPeriodQueryHandlerTests
     public async Task Handle_WithNonExistentPeriod_ThrowsApplicationCaseException()
     {
         // Arrange
-        var query = new GetTariffByPeriodQuery(2025, "Febrero");
+        var query = new GetTariffByPeriodQuery(2025, "Febrero", null, null);
 
-        _tariffs.GetByPeriodAsync(2025, "Febrero")
+        _tariffs.GetByFiltersAsync(2025, "Febrero", null, null)
             .Returns(Task.FromResult<IEnumerable<ElectricityTariff>>(Array.Empty<ElectricityTariff>()));
 
         // Act & Assert

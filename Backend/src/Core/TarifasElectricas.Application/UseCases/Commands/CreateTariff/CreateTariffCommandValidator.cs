@@ -16,6 +16,22 @@ namespace TarifasElectricas.Application.UseCases.Commands.CreateTariff;
 /// </summary>
 public class CreateTariffCommandValidator : AbstractValidator<CreateTariffCommand>
 {
+    private static readonly HashSet<string> AllowedMonths = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre"
+    };
+
     public CreateTariffCommandValidator()
     {
         RuleFor(x => x.Year)
@@ -29,6 +45,8 @@ public class CreateTariffCommandValidator : AbstractValidator<CreateTariffComman
             .WithMessage("El período es requerido")
             .Must(s => !string.IsNullOrWhiteSpace(s))
             .WithMessage("El período no puede estar vacío")
+            .Must(p => p != null && AllowedMonths.Contains(p.Trim()))
+            .WithMessage("El período debe ser un mes válido (Enero-Diciembre)")
             .MaximumLength(100)
             .WithMessage("El período no puede exceder 100 caracteres");
 

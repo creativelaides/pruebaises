@@ -1,0 +1,169 @@
+<section class="space-y-4">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold">Administración de Tarifas</h1>
+    <button class="btn btn-outline" (click)="refresh()">Refrescar</button>
+  </div>
+
+  @if (message()) { <div class="alert alert-success">{{ message() }}</div> }
+  @if (error()) { <div class="alert alert-error">{{ error() }}</div> }
+
+  <div class="card bg-base-100 shadow border border-base-300">
+    <div class="card-body md:flex-row md:items-end gap-3">
+      <div class="flex-1">
+        <label class="block text-sm font-medium mb-2">Correo de prueba (endpoint admin)</label>
+        <input class="input input-bordered w-full" [(ngModel)]="emailTo" placeholder="correo@dominio.com" />
+      </div>
+      <button class="btn btn-accent" (click)="sendTestEmail()">Enviar correo test</button>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-4">
+    <div class="card bg-base-100 shadow border border-base-300">
+      <div class="card-body">
+        <h2 class="card-title">Crear tarifa</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium mb-2">Año</label>
+            <input class="input input-bordered w-full" type="number" [(ngModel)]="createModel.year" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Período</label>
+            <select class="select select-bordered w-full" [(ngModel)]="createModel.period">
+              @for (month of months; track month) {
+                <option [value]="month">{{ month }}</option>
+              }
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">Nivel</label>
+            <input class="input input-bordered w-full" [(ngModel)]="createModel.level" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">Compañía (operador + ID interno)</label>
+            <select class="select select-bordered w-full" [ngModel]="createModel.companyId" (ngModelChange)="setCompany($event)">
+            @for (item of companyOptions(); track item.companyId) {
+              <option [value]="item.companyId">{{ item.tariffOperator }} · {{ item.companyId }}</option>
+            }
+          </select>
+            <p class="text-xs opacity-70 mt-1">Selecciona esta opción para fijar operador y compañía correctamente.</p>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">Operador</label>
+            <input class="input input-bordered w-full" [(ngModel)]="createModel.tariffOperator" readonly />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Total CU</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="createModel.totalCu" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Compra G</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="createModel.purchaseCostG" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Cargo STN/TM</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="createModel.chargeTransportStnTm" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Cargo SDL/DM</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="createModel.chargeTransportSdlDm" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Margen</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="createModel.marketingMargin" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Pérdidas PR</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="createModel.costLossesPr" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Restricciones RM</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="createModel.restrictionsRm" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">COT</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="createModel.cot" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">CFMJ</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="createModel.cfmjGfact" />
+          </div>
+        </div>
+        <button class="btn btn-primary mt-2" (click)="create()">Crear</button>
+      </div>
+    </div>
+
+    <div class="card bg-base-100 shadow border border-base-300">
+      <div class="card-body">
+        <h2 class="card-title">Actualizar costos</h2>
+        <div class="mt-2">
+          <label class="block text-sm font-medium mb-2">Tariff ID</label>
+          <input class="input input-bordered w-full" [(ngModel)]="updateTariffId" placeholder="UUID" />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+          <div>
+            <label class="block text-sm font-medium mb-2">Total CU</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="updateModel.totalCu" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Compra G</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="updateModel.purchaseCostG" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Cargo STN/TM</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="updateModel.chargeTransportStnTm" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Cargo SDL/DM</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="updateModel.chargeTransportSdlDm" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Margen</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="updateModel.marketingMargin" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Pérdidas PR</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="updateModel.costLossesPr" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Restricciones RM</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="updateModel.restrictionsRm" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">COT</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="updateModel.cot" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">CFMJ</label>
+            <input class="input input-bordered w-full" type="number" placeholder="0.00" [(ngModel)]="updateModel.cfmjGfact" />
+          </div>
+        </div>
+        <button class="btn btn-secondary mt-2" (click)="update()">Actualizar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto border border-base-300 rounded-box bg-base-100">
+    <table class="table table-zebra table-sm">
+      <thead><tr><th>ID</th><th>Año</th><th>Período</th><th>Operador</th><th class="text-right">Total</th><th></th></tr></thead>
+      <tbody>
+        @for (item of pagedTariffs(); track item.id) {
+          <tr>
+            <td class="font-mono text-xs">{{ item.id }}</td>
+            <td>{{ item.year }}</td>
+            <td>{{ item.period }}</td>
+            <td>{{ item.tariffOperator }}</td>
+            <td class="text-right">{{ item.totalCosts | copCurrency }}</td>
+            <td><button class="btn btn-error btn-xs" (click)="remove(item.id)">Eliminar</button></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="flex items-center justify-end gap-2">
+    <button class="btn btn-sm" [disabled]="currentPage() <= 1" (click)="goToPreviousPage()">Anterior</button>
+    <input class="input input-sm input-bordered w-20 text-center" type="number" min="1" [max]="totalPages()" [(ngModel)]="pageInput" />
+    <button class="btn btn-sm btn-outline" (click)="goToPage()">Ir</button>
+    <span class="text-sm opacity-80">Página {{ currentPage() }} de {{ totalPages() }}</span>
+    <button class="btn btn-sm" [disabled]="currentPage() >= totalPages()" (click)="goToNextPage()">Siguiente</button>
+  </div>
+</section>

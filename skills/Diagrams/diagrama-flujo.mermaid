@@ -24,11 +24,9 @@ flowchart TB
 
   subgraph EtlFlow["🔄 ETL (Admin)"]
     EtlStart["POST /api/etl/run"]
-    EtlLogs["GET /api/etl/logs"]
-    EtlStatus["GET /api/etl/status"]
     Extract["EXTRACT: Socrata API"]
     Transform["TRANSFORM: Map + Validate"]
-    Load["LOAD: PostgreSQL"]
+    Load["LOAD: PostgreSQL (Docker local)"]
     EtlStart --> Extract --> Transform --> Load
   end
 
@@ -37,7 +35,7 @@ flowchart TB
     EmailTest --> Smtp["SMTP Gmail"]
   end
 
-  TariffLatest --> Db["PostgreSQL"]
+  TariffLatest --> Db["PostgreSQL (Docker local)"]
   TariffById --> Db
   TariffByPeriod --> Db
   TariffAll --> Db

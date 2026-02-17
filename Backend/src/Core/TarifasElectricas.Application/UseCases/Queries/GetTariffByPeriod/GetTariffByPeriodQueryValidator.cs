@@ -16,18 +16,21 @@ public class GetTariffByPeriodQueryValidator : AbstractValidator<GetTariffByPeri
     public GetTariffByPeriodQueryValidator()
     {
         RuleFor(x => x.Year)
-            .GreaterThanOrEqualTo(1900)
+            .Must(year => !year.HasValue || year.Value >= 1900)
             .WithMessage("El año debe ser mayor o igual a 1900")
-            .LessThanOrEqualTo(DateTime.UtcNow.Year + 1)
+            .Must(year => !year.HasValue || year.Value <= DateTime.UtcNow.Year + 1)
             .WithMessage($"El año no puede ser mayor a {DateTime.UtcNow.Year + 1}");
 
-        // ✅ CORREGIDO: Period es string, no Month (int)
         RuleFor(x => x.Period)
-            .NotEmpty()
-            .WithMessage("El período es requerido")
-            .Must(s => !string.IsNullOrWhiteSpace(s))
-            .WithMessage("El período no puede estar vacío")
             .MaximumLength(100)
             .WithMessage("El período no puede exceder 100 caracteres");
+
+        RuleFor(x => x.TariffOperator)
+            .MaximumLength(300)
+            .WithMessage("El operador no puede exceder 300 caracteres");
+
+        RuleFor(x => x.Level)
+            .MaximumLength(120)
+            .WithMessage("El nivel no puede exceder 120 caracteres");
     }
 }

@@ -30,6 +30,16 @@ public interface IElectricityTariffRepository : IRepository<ElectricityTariff>
     Task<IEnumerable<ElectricityTariff>> GetByPeriodAsync(int year, string period);
 
     /// <summary>
+    /// Obtiene tarifas aplicando filtros opcionales.
+    /// Si un filtro es null/vacío, no se aplica.
+    /// </summary>
+    Task<IEnumerable<ElectricityTariff>> GetByFiltersAsync(
+        int? year,
+        string? period,
+        string? tariffOperator,
+        string? level);
+
+    /// <summary>
     /// Obtiene todas las tarifas de un año específico.
     /// 
     /// Parámetro:

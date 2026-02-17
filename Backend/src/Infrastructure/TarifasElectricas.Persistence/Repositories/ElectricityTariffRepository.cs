@@ -18,6 +18,39 @@ public class ElectricityTariffRepository : Repository<ElectricityTariff>, IElect
             string.Equals(t.Period.Period, period, StringComparison.OrdinalIgnoreCase));
     }
 
+    public async Task<IEnumerable<ElectricityTariff>> GetByFiltersAsync(
+        int? year,
+        string? period,
+        string? tariffOperator,
+        string? level)
+    {
+        var all = await Set.AsNoTracking().ToListAsync();
+        var query = all.AsEnumerable();
+
+        if (year.HasValue)
+            query = query.Where(t => t.Period.Year == year.Value);
+
+        if (!string.IsNullOrWhiteSpace(period))
+            query = query.Where(t => string.Equals(
+                t.Period.Period,
+                period.Trim(),
+                StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(tariffOperator))
+            query = query.Where(t => string.Equals(
+                t.Period.TariffOperator,
+                tariffOperator.Trim(),
+                StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrWhiteSpace(level))
+            query = query.Where(t => string.Equals(
+                t.Period.Level,
+                level.Trim(),
+                StringComparison.OrdinalIgnoreCase));
+
+        return query.ToList();
+    }
+
     public async Task<IEnumerable<ElectricityTariff>> GetByYearAsync(int year)
     {
         var all = await Set.AsNoTracking().ToListAsync();

@@ -1,0 +1,31 @@
+<section class="hero min-h-[70vh]">
+  <div class="hero-content w-full max-w-md">
+    <div class="card bg-base-100 w-full shadow-xl border border-base-300 mx-auto">
+      <div class="card-body items-center">
+        <h1 class="card-title text-2xl w-full max-w-sm">Iniciar sesión</h1>
+        <p class="text-sm opacity-75 w-full max-w-sm">Puedes ingresar con usuario o correo para acceder a funciones protegidas.</p>
+
+        <form class="space-y-4 w-full max-w-sm mx-auto" [formGroup]="form" (ngSubmit)="submit()">
+          <div class="w-full">
+            <label class="block text-sm font-medium mb-2">Usuario o email</label>
+            <input class="input input-bordered w-full" type="text" formControlName="email" />
+          </div>
+
+          <div class="w-full">
+            <label class="block text-sm font-medium mb-2">Contraseña</label>
+            <input class="input input-bordered w-full" type="password" formControlName="password" />
+          </div>
+
+          @if (errorMessage()) {
+            <div class="alert alert-error text-sm">{{ errorMessage() }}</div>
+          }
+
+          <button class="btn btn-primary w-full" type="submit" [disabled]="isSubmitDisabled()">
+            @if (loading()) { <span class="loading loading-spinner loading-sm"></span> }
+            Ingresar
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>

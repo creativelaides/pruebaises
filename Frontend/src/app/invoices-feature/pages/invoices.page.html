@@ -1,0 +1,75 @@
+<section class="space-y-4">
+  <h1 class="text-2xl font-bold">Simulación de Factura</h1>
+
+  <div class="card bg-base-100 shadow border border-base-300">
+    <div class="card-body grid md:grid-cols-3 gap-3 items-end">
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium mb-2">Tarifa de referencia</label>
+        <select class="select select-bordered w-full" [(ngModel)]="tariffId" (ngModelChange)="loadTariffDetails()">
+          <option value="" disabled>Selecciona una tarifa</option>
+          @for (item of tariffs(); track item.id) {
+            <option [value]="item.id">{{ item.tariffOperator }} · {{ item.period }} {{ item.year }} · {{ item.level }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2">Consumo kWh</label>
+        <input class="input input-bordered w-full" type="number" [(ngModel)]="kwhConsumption" />
+      </div>
+      <div class="md:col-span-3 flex flex-wrap gap-2">
+        <button class="btn btn-outline" [disabled]="loadingTariffs()" (click)="useLatestTariff()">Usar mas reciente</button>
+        <button class="btn btn-primary" [disabled]="loading() || !tariffId" (click)="simulate()">
+          @if (loading()) { <span class="loading loading-spinner loading-sm"></span> }
+          Simular
+        </button>
+      </div>
+      @if (selectedTariff(); as tariff) {
+        <div class="md:col-span-3 alert alert-info">
+          <span class="font-semibold">Poliza/Contrato:</span> {{ policyNumber() }} · {{ tariff.tariffOperator }} · Total CU {{ tariff.totalCosts | copCurrency }}
+        </div>
+      }
+      @if (loadingTariffs()) {
+        <div class="md:col-span-3 flex items-center gap-2">
+          <span class="loading loading-spinner loading-sm"></span>
+          Cargando tarifas disponibles...
+        </div>
+      }
+      @if (error()) { <div class="alert alert-error md:col-span-3">{{ error() }}</div> }
+    </div>
+  </div>
+
+  @if (result(); as res) {
+    <div class="stats shadow w-full bg-base-100 border border-base-300">
+      <div class="stat">
+        <div class="stat-title">Empresa</div>
+        <div class="stat-value text-lg break-words">{{ res.companyName }}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Poliza/Contrato</div>
+        <div class="stat-value text-lg break-all">{{ policyNumber() }}</div>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto border border-base-300 rounded-box bg-base-100">
+      <table class="table table-zebra">
+        <thead><tr><th>Componente</th><th class="text-right">Valor</th><th>Explicación</th></tr></thead>
+        <tbody>
+          @for (c of res.components; track c.name) {
+            <tr>
+              <td>{{ c.name }}</td>
+              <td class="text-right">{{ c.value | copCurrency }}</td>
+              <td>{{ c.explanation }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stats shadow w-full bg-base-100 border border-base-300">
+      <div class="stat">
+        <div class="stat-title">Total</div>
+        <div class="stat-value text-secondary">{{ res.totalCost | copCurrency }}</div>
+      </div>
+    </div>
+  }
+</section>

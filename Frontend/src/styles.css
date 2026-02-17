@@ -1,3 +1,14 @@
-/* You can add global styles to this file, and also import other style files */
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
-@plugin "daisyui";
+
+@plugin "daisyui" {
+  themes: winter --default, sunset;
+}
+
+html, body {
+  font-family: "Syne", sans-serif;
+}
+
+.font-mono {
+  font-family: "DM Mono", monospace;
+}

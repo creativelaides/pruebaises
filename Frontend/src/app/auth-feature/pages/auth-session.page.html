@@ -1,0 +1,84 @@
+<section class="space-y-4 max-w-6xl mx-auto">
+  <div class="card bg-base-100 border border-base-300 shadow">
+    <div class="card-body md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="avatar placeholder">
+          <div class="bg-primary text-primary-content rounded-full w-16 flex items-center justify-center">
+            <span class="text-xl font-bold leading-none">{{ avatarInitials() }}</span>
+          </div>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold">{{ profileDisplayName() }}</h1>
+          <p class="text-sm opacity-80">{{ profile()?.jobTitle || 'Sin cargo' }} · {{ profile()?.area || 'Sin area' }}</p>
+          <p class="text-xs opacity-70">{{ profile()?.email || session.session()?.username }}</p>
+        </div>
+      </div>
+      <button class="btn btn-error btn-outline" (click)="logout()">Cerrar sesion</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="flex justify-center py-6">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+  } @else {
+    <div class="grid xl:grid-cols-2 gap-4 items-start">
+      <div class="card bg-base-100 border border-base-300 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Datos del usuario</h2>
+          <form class="grid gap-4 max-w-md w-full mx-auto" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+            <div class="w-full">
+              <label class="block text-sm font-medium mb-2">Nombre</label>
+              <input class="input input-bordered w-full" formControlName="firstName" />
+            </div>
+            <div class="w-full">
+              <label class="block text-sm font-medium mb-2">Apellido</label>
+              <input class="input input-bordered w-full" formControlName="lastName" />
+            </div>
+            <div class="w-full">
+              <label class="block text-sm font-medium mb-2">Email</label>
+              <input class="input input-bordered w-full" formControlName="email" />
+            </div>
+            <div class="w-full">
+              <label class="block text-sm font-medium mb-2">Cargo</label>
+              <input class="input input-bordered w-full" formControlName="jobTitle" />
+            </div>
+            <div class="w-full">
+              <label class="block text-sm font-medium mb-2">Area</label>
+              <input class="input input-bordered w-full" formControlName="area" />
+            </div>
+
+            <button class="btn btn-primary mt-2 w-full" [disabled]="savingProfile() || profileForm.invalid">
+              @if (savingProfile()) { <span class="loading loading-spinner loading-sm"></span> }
+              Guardar perfil
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card bg-base-100 border border-base-300 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Cambiar contrasena</h2>
+          <form class="grid gap-4 max-w-md w-full mx-auto" [formGroup]="passwordForm" (ngSubmit)="updatePassword()">
+            <div class="w-full">
+              <label class="block text-sm font-medium mb-2">Contrasena actual</label>
+              <input class="input input-bordered w-full" type="password" formControlName="currentPassword" />
+            </div>
+            <div class="w-full">
+              <label class="block text-sm font-medium mb-2">Nueva contrasena</label>
+              <input class="input input-bordered w-full" type="password" formControlName="newPassword" />
+            </div>
+            <div class="w-full">
+              <label class="block text-sm font-medium mb-2">Confirmar nueva contrasena</label>
+              <input class="input input-bordered w-full" type="password" formControlName="confirmPassword" />
+            </div>
+            <button class="btn btn-secondary mt-2 w-full" [disabled]="changingPassword() || passwordForm.invalid">
+              @if (changingPassword()) { <span class="loading loading-spinner loading-sm"></span> }
+              Actualizar contrasena
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+</section>

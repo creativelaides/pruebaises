@@ -1,14 +1,13 @@
-# 💼 Application Layer - Estructura Completa
+# Application Layer - Estructura Actualizada
 
-## Arquitectura General
+## Vista general
+La capa `Application` orquesta los casos de uso del sistema sin depender de infraestructura concreta. Implementa CQRS (comandos y consultas), validaciones por caso de uso, contratos para persistencia/servicios y mapeos con Mapster.
 
-```
-Application/
+```text
+Backend/src/Core/TarifasElectricas.Application/
 ├── Contracts/
-│   ├── Identity/
-│   │   └── IAppUserService.cs
-│   ├── Persistence/
-│   │   └── IUnitOfWork.cs
+│   ├── Identity/IAppUserService.cs
+│   ├── Persistence/IUnitOfWork.cs
 │   ├── Repositories/
 │   │   ├── Generic/IRepository.cs
 │   │   ├── ICompanyRepository.cs
@@ -18,9 +17,9 @@ Application/
 │       ├── IEtlService.cs
 │       └── IEmailService.cs
 ├── Exceptions/
-│   └── ApplicationException.cs
-├── Mapping/
-│   └── MappingProfile.cs
+│   ├── ApplicationCaseException.cs
+│   └── HandlerGuard.cs
+├── Mapping/MapsterConfig.cs
 ├── UseCases/
 │   ├── Commands/
 │   │   ├── CreateTariff/
@@ -35,63 +34,39 @@ Application/
 └── DependencyInjectionApplication.cs
 ```
 
----
+## Contratos
+- `IRepository<T>`: operaciones genericas para entidades.
+- `IElectricityTariffRepository`, `ICompanyRepository`, `IEtlLogRepository`: acceso especializado por agregado.
+- `IUnitOfWork`: coordinacion transaccional con `SaveChangesAsync`.
+- `IEtlService`: ejecucion de ETL y lectura de logs.
+- `IEmailService`: envio de correos desde casos de uso.
+- `IAppUserService`: acceso al usuario actual para auditoria/reglas.
 
-## 📌 Contratos (Contracts)
+## Casos de uso (CQRS)
+- Commands: `CreateTariffCommand`, `UpdateTariffCommand`, `DeleteTariffCommand`.
+- En comandos se usa estructura `Command`, `Validator`, `Handler` y `Response`.
+- Queries: `GetAllTariffsQuery`, `GetLatestTariffQuery`, `GetTariffByIdQuery`, `GetTariffByPeriodQuery`, `SimulateInvoiceQuery`.
+- En queries se usa `Query`, `Handler` y `Response` (con validacion cuando aplica).
 
-**Repositorios**
-- `IRepository<T>`: contrato genérico para CRUD.
-- `IElectricityTariffRepository`, `ICompanyRepository`, `IEtlLogRepository`.
+## Manejo de errores y guardas
+- `ApplicationCaseException`: excepcion funcional de casos de uso.
+- `HandlerGuard`: utilitario de guard clauses para validar precondiciones en handlers.
 
-**Persistencia**
-- `IUnitOfWork`: agrupa repositorios y `SaveChangesAsync`.
+## Mapping
+- `MapsterConfig` registra mapeos de `ElectricityTariff` hacia:
+- `GetTariffByIdResponse`
+- `GetLatestTariffResponse`
+- `GetAllTariffsResponse.TariffItem`
+- `CreateTariffResponse`
+- `UpdateTariffResponse`
 
-**Servicios**
-- `IEtlService`: ejecutar ETL y leer logs.
-- `IEmailService`: envío de correo (infraestructura).
+## Inyeccion de dependencias
+- `DependencyInjectionApplication.cs` centraliza el registro de servicios de capa `Application` (validadores, handlers y mapeo).
 
-**Identity**
-- `IAppUserService`: obtener el `UserId` actual para auditoría.
+## Patrones aplicados
+- CQRS
+- Repository + Unit of Work
+- Validation per use case
+- DTO mapping explicito
 
----
-
-## ✅ Use Cases (CQRS)
-
-**Commands (escritura)**
-- `CreateTariffCommand` + `Validator` + `Handler` + `Response`
-- `UpdateTariffCommand` + `Validator` + `Handler` + `Response`
-- `DeleteTariffCommand` + `Validator` + `Handler` + `Response`
-
-**Queries (lectura)**
-- `GetAllTariffsQuery` + `Handler` + `Response`
-- `GetLatestTariffQuery` + `Handler` + `Response`
-- `GetTariffByIdQuery` + `Handler` + `Response`
-- `GetTariffByPeriodQuery` + `Handler` + `Response`
-- `SimulateInvoiceQuery` + `Handler` + `Response`
-
----
-
-## 🧩 Mapping
-
-**MappingProfile**
-- Define proyecciones de Domain → DTOs de respuesta.
-
----
-
-## ⚠️ Exceptions
-
-**ApplicationException**
-- Representa errores funcionales propios de la capa Application.
-
----
-
-## 🎯 Patrones Aplicados
-
-✅ **CQRS (Commands/Queries)**  
-✅ **Repository + UnitOfWork**  
-✅ **Validation por caso de uso**  
-✅ **Mapeo explícito de respuestas**
-
----
-
-*Application Layer - Actualizado: Febrero 2026*
+Actualizado: 2026-02-17
