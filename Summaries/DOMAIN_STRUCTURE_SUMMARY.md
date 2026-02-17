@@ -5,8 +5,9 @@
 ```
 Domain/
 ├── Entities/
-│   ├── EntityRoot/
-│   │   └── Root.cs
+│   ├── Root/
+│   │   ├── RootEntity.cs
+│   │   └── AuditableEntity.cs
 │   ├── Company.cs
 │   ├── ElectricityTariff.cs
 │   └── EtlLog.cs
@@ -23,19 +24,30 @@ Domain/
 
 ---
 
-## 📌 Entity Root (Base)
+## 📌 Entidades Base
 
-### **Root.cs**
+### **RootEntity.cs**
 ```csharp
-public abstract class Root
+public abstract class RootEntity
 {
     public Guid Id { get; protected set; }
     public DateTime CreatedAt { get; protected set; }
     public DateTime DateUpdated { get; protected set; }
 }
 ```
-- Base para todas las entidades
-- Guid v7 + auditoría básica
+- Base mínima para todas las entidades.
+- Usa Guid v7 y fechas UTC.
+
+### **AuditableEntity.cs**
+```csharp
+public abstract class AuditableEntity : RootEntity
+{
+    public string? CreatedBy { get; protected set; }
+    public string? UpdatedBy { get; protected set; }
+}
+```
+- Extiende `RootEntity` con auditoría de usuario.
+- Se completa en `TariffDbContext.SaveChangesAsync`.
 
 ---
 
@@ -46,11 +58,11 @@ public abstract class Root
 
 **Propiedades**:
 - `Code` (máx 300)
-- Hereda `Id`, `CreatedAt`, `DateUpdated`
+- Hereda auditoría de `AuditableEntity`
 
 **Validaciones**:
-- Code requerido
-- Code ≤ 300 caracteres
+- `Code` requerido
+- `Code` ≤ 300 caracteres
 
 **Método**:
 - `UpdateCode(newCode)` con las mismas validaciones
@@ -67,7 +79,7 @@ public abstract class Root
 
 **Validaciones**:
 - Period y Costs no nulos
-- CompanyId != Guid.Empty
+- `CompanyId != Guid.Empty`
 
 **Métodos**:
 - `UpdateCosts(TariffCosts newCosts)`
@@ -96,9 +108,9 @@ public abstract class Root
 - `Year`, `Period`, `Level`, `TariffOperator`
 
 **Validaciones**:
-- Year entre 1900 y `currentYear + 1`
-- Period y Level no vacíos, máx 100
-- TariffOperator no vacío, máx 300
+- `Year` entre 1900 y `currentYear + 1`
+- `Period` y `Level` no vacíos, máx 100
+- `TariffOperator` no vacío, máx 300
 
 **Notas**:
 - Recibe `currentYear` en el constructor
@@ -121,9 +133,9 @@ public abstract class Root
 **Propósito**: Componente individual de factura simulada
 
 **Validaciones**:
-- Name requerido, máx 100
-- Explanation requerido, máx 500
-- Value no negativo
+- `Name` requerido, máx 100
+- `Explanation` requerido, máx 500
+- `Value` no negativo
 
 ---
 
@@ -160,14 +172,15 @@ public enum EtlState
 ## 📊 Diagrama de Relaciones
 
 ```
-Root (abstract)
-  ├── Company
-  ├── ElectricityTariff
-  │   ├── Usa: TariffPeriod (VO)
-  │   ├── Usa: TariffCosts (VO)
-  │   └── Usa: InvoiceSimulation (VO)
-  └── EtlLog
-      └── Usa: EtlState (Enum)
+RootEntity (abstract)
+  └── AuditableEntity (abstract)
+        ├── Company
+        ├── ElectricityTariff
+        │   ├── Usa: TariffPeriod (VO)
+        │   ├── Usa: TariffCosts (VO)
+        │   └── Usa: InvoiceSimulation (VO)
+        └── EtlLog
+            └── Usa: EtlState (Enum)
 
 ValueObjects:
   - TariffPeriod
@@ -180,10 +193,10 @@ ValueObjects:
 
 ## 🎯 Patrones Aplicados
 
-✅ **Entity Root**
-✅ **Value Object**
-✅ **Exception Pattern**
-✅ **Auditoría en Root**
+✅ **Entity Root**  
+✅ **Auditable Entity**  
+✅ **Value Object**  
+✅ **Exception Pattern**  
 ✅ **Simulación de Factura**
 
 ---

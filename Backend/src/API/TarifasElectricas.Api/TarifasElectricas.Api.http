@@ -1,4 +1,6 @@
 @TarifasElectricas.Api_HostAddress = http://localhost:8866
+@Email = johndoe@example.com
+@Password = HelloWorldHorse9876*
 
 ### Crear tarifa
 POST {{TarifasElectricas.Api_HostAddress}}/api/tariffs
@@ -67,3 +69,17 @@ Content-Type: application/json
 
 ### Ejecutar ETL
 POST {{TarifasElectricas.Api_HostAddress}}/api/etl/run
+Authorization: Bearer {{access_token}}
+
+### Enviar correo de prueba (solo Development)
+POST {{TarifasElectricas.Api_HostAddress}}/api/email/test?to=creativelaides@gmail.com
+Authorization: Bearer {{access_token}}
+
+### Login (Identity)
+POST {{TarifasElectricas.Api_HostAddress}}/login
+Content-Type: application/json
+
+{
+  "email": "{{Email}}",
+  "password": "{{Password}}"
+}

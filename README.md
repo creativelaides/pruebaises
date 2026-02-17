@@ -4,7 +4,7 @@
 <br><br>
 </div>
 
-Proyecto full-stack para monitorear y visualizar tarifas de energia electrica en Colombia usando datos publicos de `datos.gov.co`. El backend esta implementado en .NET con Clean Architecture y CQRS. El frontend aun no esta implementado en este repositorio (solo existe la carpeta base).
+Proyecto full-stack para monitorear y visualizar tarifas de energia electrica en Colombia usando datos publicos de `datos.gov.co`. El backend esta implementado en .NET con Clean Architecture, CQRS e Identity. El frontend aun no esta implementado en este repositorio (solo existe la carpeta base); mañana se trabajara con Angular 20.
 
 Para mas detalle tecnico y referencias de arquitectura, ver `AGENT.md` y los summaries en `Summaries/`.
 
@@ -21,7 +21,7 @@ Para mas detalle tecnico y referencias de arquitectura, ver `AGENT.md` y los sum
 - Mapster
 - WolverineFx
 - PostgreSQL (planificado)
-- Angular (planificado)
+- Angular 20 (planificado)
 
 **Quick Start (Backend)**
 ```bash
@@ -30,6 +30,16 @@ dotnet restore
 dotnet build
 dotnet test
 ```
+
+**Base de datos (Docker)**
+```bash
+cd Database
+docker compose --env-file .env up -d
+```
+
+**Seed inicial (Identity)**
+- Se crean roles `Admin` y `Client`, además de usuarios base usando `appsettings.json` o `user-secrets`.
+- Ver sección `SeedUsers` en `Backend/src/API/TarifasElectricas.Api/appsettings.example.json`.
 
 **Docs clave**
 - `Summaries/APPLICATION_STRUCTURE_SUMMARY.md`

@@ -33,12 +33,16 @@ public sealed class SmtpEmailService : IEmailService
             string.IsNullOrWhiteSpace(_options.FromEmail) ? _options.User : _options.FromEmail,
             _options.FromName);
 
+        var body = message.IsHtml
+            ? message.Body
+            : EmailTemplateBuilder.WrapPlainText(message.Subject, message.Body);
+
         using var mailMessage = new MailMessage
         {
             From = fromAddress,
             Subject = message.Subject,
-            Body = message.Body,
-            IsBodyHtml = message.IsHtml
+            Body = body,
+            IsBodyHtml = true
         };
 
         mailMessage.To.Add(message.To);

@@ -1,174 +1,96 @@
-# 📋 Application Layer - Estructura Implementada
+# 💼 Application Layer - Estructura Completa
 
-## Estructura de Carpetas
+## Arquitectura General
 
 ```
 Application/
 ├── Contracts/
+│   ├── Identity/
+│   │   └── IAppUserService.cs
 │   ├── Persistence/
 │   │   └── IUnitOfWork.cs
 │   ├── Repositories/
-│   │   ├── Generic/
-│   │   │   └── IRepository.cs
+│   │   ├── Generic/IRepository.cs
 │   │   ├── ICompanyRepository.cs
 │   │   ├── IElectricityTariffRepository.cs
 │   │   └── IEtlLogRepository.cs
 │   └── Services/
-│       └── IEtlService.cs
+│       ├── IEtlService.cs
+│       └── IEmailService.cs
 ├── Exceptions/
-│   ├── ApplicationCaseException.cs
-│   └── HandlerGuard.cs
+│   └── ApplicationException.cs
 ├── Mapping/
-│   └── MapsterConfig.cs
+│   └── MappingProfile.cs
 ├── UseCases/
 │   ├── Commands/
 │   │   ├── CreateTariff/
-│   │   │   ├── CreateTariffCommand.cs
-│   │   │   ├── CreateTariffCommandValidator.cs
-│   │   │   ├── CreateTariffCommandHandler.cs
-│   │   │   └── CreateTariffResponse.cs
 │   │   ├── UpdateTariff/
-│   │   │   ├── UpdateTariffCommand.cs
-│   │   │   ├── UpdateTariffCommandValidator.cs
-│   │   │   ├── UpdateTariffCommandHandler.cs
-│   │   │   └── UpdateTariffResponse.cs
 │   │   └── DeleteTariff/
-│   │       ├── DeleteTariffCommand.cs
-│   │       ├── DeleteTariffCommandValidator.cs
-│   │       ├── DeleteTariffCommandHandler.cs
-│   │       └── DeleteTariffResponse.cs
 │   └── Queries/
 │       ├── GetAllTariffs/
-│       │   ├── GetAllTariffsQuery.cs
-│       │   ├── GetAllTariffsQueryValidator.cs
-│       │   ├── GetAllTariffsQueryHandler.cs
-│       │   └── GetAllTariffsResponse.cs
 │       ├── GetLatestTariff/
-│       │   ├── GetLatestTariffQuery.cs
-│       │   ├── GetLatestTariffQueryHandler.cs
-│       │   └── GetLatestTariffResponse.cs
 │       ├── GetTariffById/
-│       │   ├── GetTariffByIdQuery.cs
-│       │   ├── GetTariffByIdQueryValidator.cs
-│       │   ├── GetTariffByIdQueryHandler.cs
-│       │   └── GetTariffByIdResponse.cs
 │       ├── GetTariffByPeriod/
-│       │   ├── GetTariffByPeriodQuery.cs
-│       │   ├── GetTariffByPeriodQueryValidator.cs
-│       │   ├── GetTariffByPeriodQueryHandler.cs
-│       │   └── GetTariffByPeriodResponse.cs
 │       └── SimulateInvoice/
-│           ├── SimulateInvoiceQuery.cs
-│           ├── SimulateInvoiceQueryValidator.cs
-│           ├── SimulateInvoiceQueryHandler.cs
-│           └── SimulateInvoiceResponse.cs
 └── DependencyInjectionApplication.cs
 ```
 
 ---
 
-## Componentes Implementados
+## 📌 Contratos (Contracts)
 
-### 1️⃣ Excepciones
-**ApplicationCaseException.cs**
-- Excepción personalizada para errores en casos de uso
+**Repositorios**
+- `IRepository<T>`: contrato genérico para CRUD.
+- `IElectricityTariffRepository`, `ICompanyRepository`, `IEtlLogRepository`.
 
-**HandlerGuard.cs**
-- Envoltorio para handlers
-- Convierte `DomainRuleException` y excepciones inesperadas en `ApplicationCaseException`
+**Persistencia**
+- `IUnitOfWork`: agrupa repositorios y `SaveChangesAsync`.
 
----
+**Servicios**
+- `IEtlService`: ejecutar ETL y leer logs.
+- `IEmailService`: envío de correo (infraestructura).
 
-### 2️⃣ Contratos
-
-#### **IUnitOfWork**
-**Ubicación**: `Contracts/Persistence/IUnitOfWork.cs`
-- Coordina repositorios y transacciones
-- Repositorios expuestos: `ElectricityTariffs`, `Companies`, `EtlLogs`
-- Métodos: `SaveChangesAsync`, `BeginTransactionAsync`, `CommitAsync`, `RollbackAsync`
-
-#### **IRepository<T>**
-**Ubicación**: `Contracts/Repositories/Generic/IRepository.cs`
-- CRUD genérico + `ExistsAsync`
-
-#### **Repositorios Específicos**
-- **IElectricityTariffRepository**: `GetByPeriodAsync(year, period)`, `GetByYearAsync(year)`, `GetLatestAsync()`
-- **ICompanyRepository**: `GetByCodeAsync(code)`, `CodeExistsAsync(code)`, `GetAllCompaniesAsync()`
-- **IEtlLogRepository**: `GetByStateAsync`, `GetRecentLogsAsync`, `GetLatestAsync`, `GetSuccessRateAsync`
-
-#### **IEtlService**
-**Ubicación**: `Contracts/Services/IEtlService.cs`
-- Ejecuta el proceso ETL y devuelve `EtlExecutionResult`
+**Identity**
+- `IAppUserService`: obtener el `UserId` actual para auditoría.
 
 ---
 
-### 3️⃣ Mapping y DI
+## ✅ Use Cases (CQRS)
 
-#### **MapsterConfig.cs**
-- Mapeos `ElectricityTariff → Response` para Create/Update y Queries
-- Mapea `TotalCosts` con `GetTotalCosts()`
+**Commands (escritura)**
+- `CreateTariffCommand` + `Validator` + `Handler` + `Response`
+- `UpdateTariffCommand` + `Validator` + `Handler` + `Response`
+- `DeleteTariffCommand` + `Validator` + `Handler` + `Response`
 
-#### **DependencyInjectionApplication.cs**
-- Registra FluentValidation
-- Configura Mapster
-- Habilita descubrimiento de handlers con WolverineFx
-
----
-
-### 4️⃣ Casos de Uso (CQRS)
-
-#### ✅ Commands
-- **CreateTariff**
-  - Valida `CompanyId` y duplicados por `(Year, Period)`
-  - Crea `TariffPeriod` y `TariffCosts`
-  - Persiste con `IUnitOfWork`
-
-- **UpdateTariff**
-  - Solo actualiza costos (no período/operador/empresa)
-  - Reemplaza costos con `TariffCosts` nuevo
-
-- **DeleteTariff**
-  - Elimina la tarifa por `Id`
-
-#### ✅ Queries
-- **GetAllTariffs**
-  - Paginación en memoria: `Page` y `PageSize`
-  - Ordena por `CreatedAt` desc
-
-- **GetLatestTariff**
-  - Usa `GetLatestAsync()`
-
-- **GetTariffById**
-  - Busca por `Id`
-
-- **GetTariffByPeriod**
-  - Usa `Year` + `Period` (string de Gov.co)
-
-- **SimulateInvoice**
-  - Obtiene tarifa + empresa
-  - Usa `ElectricityTariff.SimulateInvoice()`
-  - Devuelve desglose de costos
+**Queries (lectura)**
+- `GetAllTariffsQuery` + `Handler` + `Response`
+- `GetLatestTariffQuery` + `Handler` + `Response`
+- `GetTariffByIdQuery` + `Handler` + `Response`
+- `GetTariffByPeriodQuery` + `Handler` + `Response`
+- `SimulateInvoiceQuery` + `Handler` + `Response`
 
 ---
 
-## Flujo General de Validaciones
+## 🧩 Mapping
 
-```
-Request → Validator (FluentValidation) → Handler (WolverineFx)
-    └─ HandlerGuard → ApplicationCaseException
-```
+**MappingProfile**
+- Define proyecciones de Domain → DTOs de respuesta.
 
 ---
 
-## Características Implementadas
+## ⚠️ Exceptions
 
-✅ **CQRS Pattern** (Commands / Queries)
-✅ **FluentValidation**
-✅ **Unit of Work**
-✅ **Repository Pattern**
-✅ **Mapster Mapping**
-✅ **WolverineFx Discovery**
-✅ **Exception Handling (HandlerGuard)**
+**ApplicationException**
+- Representa errores funcionales propios de la capa Application.
+
+---
+
+## 🎯 Patrones Aplicados
+
+✅ **CQRS (Commands/Queries)**  
+✅ **Repository + UnitOfWork**  
+✅ **Validation por caso de uso**  
+✅ **Mapeo explícito de respuestas**
 
 ---
 
