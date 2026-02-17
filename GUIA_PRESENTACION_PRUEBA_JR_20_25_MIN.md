@@ -7,18 +7,32 @@ Explicar de forma clara que resolviste el problema de negocio de tarifas electri
 "La solucion permite consumir datos oficiales, transformarlos, almacenarlos, consultarlos y visualizarlos de forma segura y mantenible."
 
 ## Agenda sugerida (tiempos reales)
-1. `00:00 - 02:00` Contexto y objetivo de negocio.
-2. `02:00 - 06:00` Arquitectura general y decisiones tecnicas.
-3. `06:00 - 10:00` Backend: capas, endpoints y seguridad.
-4. `10:00 - 13:00` ETL y persistencia local en Docker.
-5. `13:00 - 17:00` Frontend y flujo de usuario.
-6. `17:00 - 20:00` Demo guiada.
+1. `00:00 - 05:00` Demo guiada.
+2. `05:00 - 07:00` Contexto y objetivo de negocio.
+3. `07:00 - 11:00` Arquitectura general y decisiones tecnicas.
+4. `11:00 - 14:00` Backend: capas, endpoints y seguridad.
+5. `14:00 - 17:00` ETL y persistencia local en Docker.
+6. `17:00 - 20:00` Frontend y flujo de usuario.
 7. `20:00 - 23:00` Testing, calidad y manejo de errores.
 8. `23:00 - 25:00` Cierre, limites actuales y siguientes pasos.
 
 ## Guion detallado por bloque
 
-## 1) Contexto y objetivo (`00:00 - 02:00`)
+## 1) Demo guiada (`00:00 - 05:00`)
+- Orden recomendado para no fallar:
+1. Levantar DB Docker.
+2. Levantar API.
+3. Levantar Frontend.
+4. Login.
+5. Consultar `latest` o listado de tarifas.
+6. Ejecutar simulacion de factura.
+7. (Opcional) correr ETL como Admin.
+- Si el tiempo esta corto, prioriza:
+1. Login.
+2. Consulta tarifas.
+3. Simulacion.
+
+## 2) Contexto y objetivo (`05:00 - 07:00`)
 - Problema: tarifas electricas son datos tecnicos y dispersos; se requiere visualizacion y consulta clara.
 - Fuente oficial: `datos.gov.co` (Socrata).
 - Valor: centralizar consulta, simular factura y facilitar monitoreo.
@@ -26,7 +40,7 @@ Explicar de forma clara que resolviste el problema de negocio de tarifas electri
 Frase de cierre del bloque:
 "El foco fue construir una base tecnica ordenada para crecer funcionalmente sin romper el sistema."
 
-## 2) Arquitectura y decisiones (`02:00 - 06:00`)
+## 3) Arquitectura y decisiones (`07:00 - 11:00`)
 - Muestra `Skills/Diagrams/diagrama-arquitectura.mermaid`.
 - Explica separacion en capas (Domain, Application, Infrastructure, API, Frontend).
 - Aclara punto clave: PostgreSQL no es "externo"; corre local en Docker (`Database/docker-compose.yml`), mientras que externo es Socrata y SMTP.
@@ -35,7 +49,7 @@ Frase de cierre del bloque:
 - CQRS para separar lectura/escritura.
 - Identity para autenticacion/autorizacion.
 
-## 3) Backend (`06:00 - 10:00`)
+## 4) Backend (`11:00 - 14:00`)
 - Ubicacion: `Backend/src`.
 - Muestra rapidamente:
 - `Domain`: entidades y reglas.
@@ -50,7 +64,7 @@ Frase de cierre del bloque:
 - Roles `Admin` y `Client`.
 - Políticas y autorización en controladores.
 
-## 4) ETL + Base de datos (`10:00 - 13:00`)
+## 5) ETL + Base de datos (`14:00 - 17:00`)
 - Muestra `Skills/Diagrams/diagrama-secuencia-etl.mermaid`.
 - Explica pipeline:
 - Extract: Socrata API.
@@ -60,7 +74,7 @@ Frase de cierre del bloque:
 - Aclara infraestructura local:
 - PostgreSQL + pgAdmin levantados por Docker en `Database/`.
 
-## 5) Frontend (`13:00 - 17:00`)
+## 6) Frontend (`17:00 - 20:00`)
 - Ubicacion: `Frontend/src/app`.
 - Explica features por modulo:
 - `auth-feature`
@@ -73,20 +87,6 @@ Frase de cierre del bloque:
 - Consulta de tarifas.
 - Simulacion de factura.
 - (Admin) ejecucion ETL y prueba de correo.
-
-## 6) Demo guiada (`17:00 - 20:00`)
-- Orden recomendado para no fallar:
-1. Levantar DB Docker.
-2. Levantar API.
-3. Levantar Frontend.
-4. Login.
-5. Consultar `latest` o listado de tarifas.
-6. Ejecutar simulacion de factura.
-7. (Opcional) correr ETL como Admin.
-- Si el tiempo esta corto, prioriza:
-1. Login.
-2. Consulta tarifas.
-3. Simulacion.
 
 ## 7) Calidad tecnica (`20:00 - 23:00`)
 - Pruebas backend con xUnit + NSubstitute.
