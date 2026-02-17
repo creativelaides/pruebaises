@@ -20,6 +20,7 @@ public static class DependencyInjectionInfrastructure
         IConfiguration configuration)
     {
         services.Configure<SocrataOptions>(configuration.GetSection(SocrataOptions.SectionName));
+        services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
 
         services.AddHttpClient<SocrataClient>((sp, client) =>
         {
@@ -29,6 +30,7 @@ public static class DependencyInjectionInfrastructure
         });
 
         services.AddScoped<IEtlService, SocrataEtlService>();
+        services.AddScoped<IEmailService, SmtpEmailService>();
 
         return services;
     }
