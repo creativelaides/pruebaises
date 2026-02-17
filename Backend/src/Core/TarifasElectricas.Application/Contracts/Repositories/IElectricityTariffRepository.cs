@@ -8,26 +8,26 @@ namespace TarifasElectricas.Application.Contracts.Repositories;
 /// Interfaz específica para operaciones de persistencia de ElectricityTariff
 /// 
 /// Responsabilidades:
-/// - GetByPeriodAsync: Obtener tarifa por año y período específico de Gov.co
+/// - GetByPeriodAsync: Obtener tarifas por año y período específico de Gov.co
 /// - GetByYearAsync: Obtener todas las tarifas de un año
 /// - GetLatestAsync: Obtener la tarifa más reciente
 /// </summary>
 public interface IElectricityTariffRepository : IRepository<ElectricityTariff>
 {
     /// <summary>
-    /// Obtiene una tarifa por año y período específico.
+    /// Obtiene tarifas por año y período específico.
     /// 
     /// Parámetros:
     ///   year: Año de la tarifa (ej: 2025)
     ///   period: Período específico de Gov.co (ej: "Enero", "Enero-Marzo")
     /// 
     /// Retorna:
-    ///   ElectricityTariff si existe, null si no
+    ///   IEnumerable<ElectricityTariff> (puede estar vacío)
     /// 
     /// Nota: El período de Gov.co ya incluye información temporal completa,
     /// no es necesario mes separado.
     /// </summary>
-    Task<ElectricityTariff?> GetByPeriodAsync(int year, string period);
+    Task<IEnumerable<ElectricityTariff>> GetByPeriodAsync(int year, string period);
 
     /// <summary>
     /// Obtiene todas las tarifas de un año específico.

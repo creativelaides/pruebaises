@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Mapster;
 using TarifasElectricas.Application.Contracts.Repositories;
 using TarifasElectricas.Application.Exceptions;
 
@@ -25,7 +24,15 @@ public class GetTariffByIdQueryHandler(IElectricityTariffRepository tariffs)
             if (tariff == null)
                 throw new ApplicationCaseException($"Tarifa con ID {query.Id} no encontrada");
 
-            return tariff.Adapt<GetTariffByIdResponse>();
+            return new GetTariffByIdResponse(
+                tariff.Id,
+                tariff.Period.Year,
+                tariff.Period.Period,
+                tariff.Period.Level,
+                tariff.Period.TariffOperator,
+                tariff.CompanyId,
+                tariff.GetTotalCosts(),
+                tariff.CreatedAt);
         }, "Error al obtener la tarifa");
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Mapster;
 using TarifasElectricas.Application.Contracts.Repositories;
 using TarifasElectricas.Application.Exceptions;
 
@@ -25,7 +24,15 @@ public class GetLatestTariffQueryHandler(IElectricityTariffRepository tariffs)
             if (tariff == null)
                 throw new ApplicationCaseException("No hay tarifas disponibles");
 
-            return tariff.Adapt<GetLatestTariffResponse>();
+            return new GetLatestTariffResponse(
+                tariff.Id,
+                tariff.Period.Year,
+                tariff.Period.Period,
+                tariff.Period.Level,
+                tariff.Period.TariffOperator,
+                tariff.CompanyId,
+                tariff.GetTotalCosts(),
+                tariff.CreatedAt);
         }, "Error al obtener la tarifa más reciente");
     }
 }

@@ -10,10 +10,10 @@ public class ElectricityTariffRepository : Repository<ElectricityTariff>, IElect
     {
     }
 
-    public async Task<ElectricityTariff?> GetByPeriodAsync(int year, string period)
+    public async Task<IEnumerable<ElectricityTariff>> GetByPeriodAsync(int year, string period)
     {
         var all = await Set.AsNoTracking().ToListAsync();
-        return all.FirstOrDefault(t =>
+        return all.Where(t =>
             t.Period.Year == year &&
             string.Equals(t.Period.Period, period, StringComparison.OrdinalIgnoreCase));
     }

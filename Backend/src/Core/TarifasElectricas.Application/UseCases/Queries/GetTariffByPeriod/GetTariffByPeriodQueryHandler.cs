@@ -1,6 +1,6 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
-using Mapster;
 using TarifasElectricas.Application.Contracts.Repositories;
 using TarifasElectricas.Application.Exceptions;
 
@@ -25,15 +25,24 @@ public class GetTariffByPeriodQueryHandler(IElectricityTariffRepository tariffs)
 
         return await HandlerGuard.ExecuteAsync(async () =>
         {
-            // ✅ CORREGIDO: Pasar Period (string), no Month (int)
-            var tariff = await _tariffs
-                .GetByPeriodAsync(query.Year, query.Period);
+            var tariffs = (await _tariffs
+                .GetByPeriodAsync(query.Year, query.Period))
+                .ToList();
 
-            if (tariff == null)
+            if (tariffs.Count == 0)
                 throw new ApplicationCaseException(
-                    $"Tarifa no encontrada para el período {query.Year}-{query.Period}");
+                    $"No hay tarifas para el período {query.Year}-{query.Period}");
 
-            return tariff.Adapt<GetTariffByPeriodResponse>();
+            return new GetTariffByPeriodResponse(
+                tariffs.Select(t => new GetTariffByPeriodResponse.TariffItem(
+                    t.Id,
+                    t.Period.Year,
+                    t.Period.Period,
+                    t.Period.Level,
+                    t.Period.TariffOperator,
+                    t.CompanyId,
+                    t.GetTotalCosts(),
+                    t.CreatedAt)));
         }, "Error al obtener la tarifa");
     }
 }

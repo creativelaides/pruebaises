@@ -1,5 +1,4 @@
 using System;
-using Mapster;
 using TarifasElectricas.Application.Contracts.Repositories;
 using TarifasElectricas.Application.Exceptions;
 
@@ -26,7 +25,15 @@ public class GetAllTariffsQueryHandler(IElectricityTariffRepository tariffs)
                 .OrderByDescending(t => t.CreatedAt)
                 .Skip(skip)
                 .Take(query.PageSize)
-                .Select(t => t.Adapt<GetAllTariffsResponse.TariffItem>())
+                .Select(t => new GetAllTariffsResponse.TariffItem(
+                    t.Id,
+                    t.Period.Year,
+                    t.Period.Period,
+                    t.Period.Level,
+                    t.Period.TariffOperator,
+                    t.CompanyId,
+                    t.GetTotalCosts(),
+                    t.CreatedAt))
                 .ToList();
 
             return new GetAllTariffsResponse(tariffItems);

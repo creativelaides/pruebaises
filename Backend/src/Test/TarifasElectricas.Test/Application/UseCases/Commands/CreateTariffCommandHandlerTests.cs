@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
@@ -53,7 +54,8 @@ public class CreateTariffCommandHandlerTests
         _companies.GetByIdAsync(companyId).Returns(Task.FromResult<Company?>(company));
 
         // Mock: No existe tarifa duplicada
-        _tariffs.GetByPeriodAsync(2025, "Enero").Returns(Task.FromResult<ElectricityTariff?>(null));
+        _tariffs.GetByPeriodAsync(2025, "Enero")
+            .Returns(Task.FromResult<IEnumerable<ElectricityTariff>>(Array.Empty<ElectricityTariff>()));
 
         // Act
         var response = await _handler.Handle(command);
@@ -134,7 +136,8 @@ public class CreateTariffCommandHandlerTests
         _companies.GetByIdAsync(companyId).Returns(Task.FromResult<Company?>(company));
 
         // Mock: Tarifa duplicada existe
-        _tariffs.GetByPeriodAsync(2025, "Enero").Returns(Task.FromResult<ElectricityTariff?>(existingTariff));
+        _tariffs.GetByPeriodAsync(2025, "Enero")
+            .Returns(Task.FromResult<IEnumerable<ElectricityTariff>>(new[] { existingTariff }));
 
         // Act & Assert
         var ex = await Assert.ThrowsAsync<ApplicationCaseException>(() => _handler.Handle(command));

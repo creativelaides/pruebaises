@@ -1,6 +1,7 @@
 namespace TarifasElectricas.Application.UseCases.Commands.CreateTariff;
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Mapster;
 using TarifasElectricas.Application.Contracts.Persistence;
@@ -53,7 +54,7 @@ public class CreateTariffCommandHandler
             var existing = await _tariffs
                 .GetByPeriodAsync(command.Year, command.Period!);
 
-            if (existing != null)
+            if (existing.Any())
                 throw new ApplicationCaseException(
                     $"Ya existe una tarifa para el período {command.Year}-{command.Period}");
 

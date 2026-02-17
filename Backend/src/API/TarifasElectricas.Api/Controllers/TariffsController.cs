@@ -166,6 +166,7 @@ public class TariffsController(
     /// <summary>
     /// Obtiene una tarifa por ID.
     /// </summary>
+    [AllowAnonymous]
     [HttpGet("{id:guid}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(GetTariffByIdResponseDto), StatusCodes.Status200OK)]
@@ -194,8 +195,9 @@ public class TariffsController(
     }
 
     /// <summary>
-    /// Obtiene una tarifa por año y período.
+    /// Obtiene tarifas por año y período.
     /// </summary>
+    [AllowAnonymous]
     [HttpGet("by-period")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(GetTariffByPeriodResponseDto), StatusCodes.Status200OK)]
@@ -209,14 +211,15 @@ public class TariffsController(
         {
             var result = await _getByPeriodHandler.Handle(new GetTariffByPeriodQuery(year, period));
             var dto = new GetTariffByPeriodResponseDto(
-                result.Id,
-                result.Year,
-                result.Period,
-                result.Level,
-                result.TariffOperator,
-                result.CompanyId,
-                result.TotalCosts,
-                result.CreatedAt);
+                result.Tariffs.Select(t => new GetTariffByPeriodResponseDto.TariffItem(
+                    t.Id,
+                    t.Year,
+                    t.Period,
+                    t.Level,
+                    t.TariffOperator,
+                    t.CompanyId,
+                    t.TotalCosts,
+                    t.CreatedAt)));
             return Ok(dto);
         }
         catch (ApplicationCaseException ex)
@@ -228,6 +231,7 @@ public class TariffsController(
     /// <summary>
     /// Obtiene la tarifa más reciente.
     /// </summary>
+    [AllowAnonymous]
     [HttpGet("latest")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(GetLatestTariffResponseDto), StatusCodes.Status200OK)]
@@ -258,6 +262,7 @@ public class TariffsController(
     /// <summary>
     /// Lista tarifas con paginación básica.
     /// </summary>
+    [AllowAnonymous]
     [HttpGet]
     [Produces("application/json")]
     [ProducesResponseType(typeof(GetAllTariffsResponseDto), StatusCodes.Status200OK)]
@@ -290,5 +295,6 @@ public class TariffsController(
 
     private static bool IsNotFound(ApplicationCaseException ex) =>
         ex.Message.Contains("no encontrada", StringComparison.OrdinalIgnoreCase) ||
-        ex.Message.Contains("no encontrado", StringComparison.OrdinalIgnoreCase);
+        ex.Message.Contains("no encontrado", StringComparison.OrdinalIgnoreCase) ||
+        ex.Message.Contains("no hay tarifas", StringComparison.OrdinalIgnoreCase);
 }

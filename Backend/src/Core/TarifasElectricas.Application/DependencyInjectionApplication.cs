@@ -3,6 +3,14 @@ using Microsoft.Extensions.DependencyInjection;
 using FluentValidation;
 using Mapster;
 using TarifasElectricas.Application.Mapping;
+using TarifasElectricas.Application.UseCases.Commands.CreateTariff;
+using TarifasElectricas.Application.UseCases.Commands.DeleteTariff;
+using TarifasElectricas.Application.UseCases.Commands.UpdateTariff;
+using TarifasElectricas.Application.UseCases.Queries.GetAllTariffs;
+using TarifasElectricas.Application.UseCases.Queries.GetLatestTariff;
+using TarifasElectricas.Application.UseCases.Queries.GetTariffById;
+using TarifasElectricas.Application.UseCases.Queries.GetTariffByPeriod;
+using TarifasElectricas.Application.UseCases.Queries.SimulateInvoice;
 using Wolverine;
 
 namespace TarifasElectricas.Application;
@@ -27,6 +35,18 @@ public static class DependencyInjectionApplication
             // Descubre handlers en este assembly
             options.Discovery.IncludeAssembly(Assembly.GetExecutingAssembly());
         });
+
+        // Handlers usados directamente por los controllers API.
+        // Wolverine los descubre para mensajería, pero no los registra como servicios
+        // concretos para inyección directa.
+        services.AddScoped<CreateTariffCommandHandler>();
+        services.AddScoped<UpdateTariffCommandHandler>();
+        services.AddScoped<DeleteTariffCommandHandler>();
+        services.AddScoped<GetTariffByIdQueryHandler>();
+        services.AddScoped<GetTariffByPeriodQueryHandler>();
+        services.AddScoped<GetLatestTariffQueryHandler>();
+        services.AddScoped<GetAllTariffsQueryHandler>();
+        services.AddScoped<SimulateInvoiceQueryHandler>();
 
         return services;
     }
