@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/Aspire/">
+    <Project Path="Aspire/Aspire.AppHost/Aspire.AppHost.csproj" />
+    <Project Path="Aspire/Aspire.ServiceDefaults/Aspire.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/src/API/">
+    <Project Path="Backend/src/API/TarifasElectricas.Api/TarifasElectricas.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Core/">
+    <Project Path="Backend/src/Core/TarifasElectricas.Application/TarifasElectricas.Application.csproj" />
+    <Project Path="Backend/src/Core/TarifasElectricas.Domain/TarifasElectricas.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="Backend/src/Infrastructure/TarifasElectricas.Identity/TarifasElectricas.Identity.csproj" />
+    <Project Path="Backend/src/Infrastructure/TarifasElectricas.Infrastructure/TarifasElectricas.Infrastructure.csproj" />
+    <Project Path="Backend/src/Infrastructure/TarifasElectricas.Persistence/TarifasElectricas.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/src/Test/">
+    <Project Path="Backend/src/Test/TarifasElectricas.Test/TarifasElectricas.Test.csproj" />
+  </Folder>
+</Solution>

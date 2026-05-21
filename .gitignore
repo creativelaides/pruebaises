@@ -43,6 +43,10 @@ yarn-error.log*
 .DS_Store
 angular-tesloshop/
 
+# Aspire
+aspire.config.json.user
+**/Aspire.AppHost/appsettings.Development.json
+
 # Misc
 *.log
 *.bak

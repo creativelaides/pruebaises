@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using TarifasElectricas.Application;
 using TarifasElectricas.Api.Middlewares;
@@ -7,9 +8,16 @@ using TarifasElectricas.Identity.Models;
 using TarifasElectricas.Identity.Seed;
 using TarifasElectricas.Infrastructure;
 using TarifasElectricas.Persistence;
+using Aspire.Npgsql.EntityFrameworkCore.PostgreSQL;
 
 var builder = WebApplication.CreateBuilder(args);
 const string CorsPolicyName = "FrontendDev";
+
+builder.AddServiceDefaults();
+
+// Enrich Npgsql DbContexts con telemetría y health checks de Aspire
+builder.EnrichNpgsqlDbContext<TariffDbContext>();
+builder.EnrichNpgsqlDbContext<AppIdentityDbContext>();
 
 // Add services to the container.
 
@@ -23,12 +31,20 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(CorsPolicyName, policy =>
     {
+        var allowedOrigins = new List<string>
+        {
+            "http://localhost:4200",
+            "http://127.0.0.1:4200"
+        };
+
+        var aspireFrontend = builder.Configuration["AllowedOrigins:Frontend"];
+        if (!string.IsNullOrEmpty(aspireFrontend))
+        {
+            allowedOrigins.Add(aspireFrontend.TrimEnd('/'));
+        }
+
         policy
-            .WithOrigins(
-                "http://localhost:8844",
-                "http://127.0.0.1:8844",
-                "http://localhost:4200",
-                "http://127.0.0.1:4200")
+            .WithOrigins(allowedOrigins.ToArray())
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -56,12 +72,38 @@ app.UseApiExceptionHandling();
 app.UseHttpsRedirection();
 app.UseCors(CorsPolicyName);
 
+app.MapDefaultEndpoints();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapIdentityApi<AppUser>();
 
-await IdentitySeeder.SeedAsync(app.Services, app.Configuration);
+// ── Migraciones y Seed ───────────────────────────────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Aplicando migraciones...");
+        
+        var tariffContext = services.GetRequiredService<TariffDbContext>();
+        await tariffContext.Database.MigrateAsync();
+        
+        var identityContext = services.GetRequiredService<AppIdentityDbContext>();
+        await identityContext.Database.MigrateAsync();
+
+        logger.LogInformation("Migraciones completadas. Iniciando seeding...");
+        await IdentitySeeder.SeedAsync(app.Services, app.Configuration);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error al migrar o sembrar la base de datos.");
+        throw;
+    }
+}
 
 app.Run();
