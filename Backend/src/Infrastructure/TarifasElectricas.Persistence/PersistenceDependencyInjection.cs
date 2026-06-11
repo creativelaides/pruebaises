@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TarifasElectricas.Application.Contracts.Persistence;
@@ -11,17 +10,15 @@ namespace TarifasElectricas.Persistence;
 
 public static class PersistenceDependencyInjection
 {
+    /// <summary>
+    /// Registra repositorios y unidad de trabajo.
+    /// El DbContext (TariffDbContext) es registrado externamente por el host
+    /// (Program.cs vía AddNpgsqlDbContext o AddDbContext según el entorno).
+    /// </summary>
     public static IServiceCollection AddPersistenceServices(
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-        if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException("Connection string 'DefaultConnection' no configurada.");
-
-        services.AddDbContext<TariffDbContext>(options =>
-            options.UseNpgsql(connectionString));
-
         services.AddScoped<IElectricityTariffRepository, ElectricityTariffRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<IEtlLogRepository, EtlLogRepository>();

@@ -15,9 +15,16 @@ const string CorsPolicyName = "FrontendDev";
 
 builder.AddServiceDefaults();
 
-// Enrich Npgsql DbContexts con telemetría y health checks de Aspire
+// TariffDbContext inyecta IAppUserService (Scoped) para auditoría.
+// AddNpgsqlDbContext usa DbContext pooling internamente, y el pool resuelve
+// desde el root provider (no puede resolver servicios Scoped).
+// Solución: registrar con AddDbContext estándar (sin pool) + Enrich para telemetría.
+builder.Services.AddDbContext<TariffDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.EnrichNpgsqlDbContext<TariffDbContext>();
-builder.EnrichNpgsqlDbContext<AppIdentityDbContext>();
+
+// AppIdentityDbContext no tiene dependencias Scoped: puede usar AddNpgsqlDbContext con pool.
+builder.AddNpgsqlDbContext<AppIdentityDbContext>("DefaultConnection");
 
 // Add services to the container.
 
@@ -80,7 +87,10 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapIdentityApi<AppUser>();
 
-// ── Migraciones y Seed ───────────────────────────────────────────────────
+// ── Migraciones y Seed ────────────────────────────────────────────
+// MigrateAsync aplica las migraciones incrementalmente.
+// El VolumeCleanupHook elimina el volumen antes de cada arranque,
+// garantizando una DB vacía donde las migraciones se aplican sin conflictos.
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -88,10 +98,10 @@ using (var scope = app.Services.CreateScope())
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogInformation("Aplicando migraciones...");
-        
+
         var tariffContext = services.GetRequiredService<TariffDbContext>();
         await tariffContext.Database.MigrateAsync();
-        
+
         var identityContext = services.GetRequiredService<AppIdentityDbContext>();
         await identityContext.Database.MigrateAsync();
 

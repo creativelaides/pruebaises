@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TarifasElectricas.Application.Contracts.Identity;
@@ -10,6 +9,8 @@ namespace TarifasElectricas.Identity;
 
 /// <summary>
 /// Registro de dependencias para Identity.
+/// El DbContext (AppIdentityDbContext) es registrado externamente por el host
+/// (Program.cs vía AddNpgsqlDbContext o AddDbContext según el entorno).
 /// </summary>
 public static class IdentityDependencyInjection
 {
@@ -17,13 +18,6 @@ public static class IdentityDependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-        if (string.IsNullOrWhiteSpace(connectionString))
-            throw new InvalidOperationException("Connection string 'DefaultConnection' no configurada.");
-
-        services.AddDbContext<AppIdentityDbContext>(options =>
-            options.UseNpgsql(connectionString));
-
         services.AddAuthentication(IdentityConstants.BearerScheme)
             .AddBearerToken(IdentityConstants.BearerScheme);
 
